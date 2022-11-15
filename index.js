@@ -7,6 +7,7 @@ const path = require("path");
 
 // ----------- API's Connect ---------
 const doctor = require("./src/routes/doctors.routes");
+const admin = require("./src/routes/admin.routes");
 //-------- Mongodb connected --------------------------//
 const con = require("./src/config/db.config");
 
@@ -24,11 +25,14 @@ app.use(bodyParser.json());
 // ------- Cors --------------------
 var cors = require("cors");
 const { append } = require("express/lib/response");
+const { application } = require("express");
 app.use(cors());
 app.options("*", cors());
 app.use(express.json());
 
+app.use("/api", admin);
 app.use("/api", doctor);
+
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

@@ -25,3 +25,12 @@ exports.verifyDocAccount = async (req, res, next) => {
     next()
   }
 }
+
+exports.verifydmin = async (req,res,next) => {
+  let {email} = req.body; 
+  if (email.match("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")) {
+    next();
+  }else{
+    errorResponse(406, "Email is not valid.", res);
+  }
+}

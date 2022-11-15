@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const doctorsController = require("../controller/doctors.controller");
+const doctorsController = require("../controller/user/doctors.controller");
 const {verifyEmail, verifyDocAccount} = require("../middleware/validation");
 const { verifyWebToken } = require("../helpers/jwt");
 router.post("/doctor/register",verifyEmail, verifyDocAccount, doctorsController.register);

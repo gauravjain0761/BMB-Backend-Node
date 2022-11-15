@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const doctorsModel = require('../models/doctors.model')
+const doctorsModel = require('../../models/doctors.model')
 var bcrypt = require('bcryptjs');
-const saltRounds = 10;
+const saltRounds = process.env.SALT;
 const moment = require('moment');
 const XLSX = require('xlsx');
-const { successResponse, errorResponse } = require('../helpers/response');
-const { generateWebToken, } = require('../helpers/jwt');
+const { successResponse, errorResponse } = require('../../helpers/response');
+const { generateWebToken, } = require('../../helpers/jwt');
 const axios = require('axios');
 
 //============================= Doctor Register==========================//
@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
       reg_number: reg_number,
       dob: dob,
       blood_group: blood_group,
-      accountType: "USER"
+      account_type: "USER"
     }
     if (password != null && password != '') {
       object.password = bcrypt.hashSync(password, saltRounds);
@@ -49,14 +49,14 @@ exports.doctorlogin = async (req, res) => {
     let { email, password } = req.body;
     await doctorsModel.findOne({ $or: [{ email: email }, { contact_number: email }] }).then((docs) => {
       if (!docs) {
-        errorResponse(404, "Account does not exists.", res);
+        errorResponse(422, "Account does not exists.", res);
       } else {
         if (!docs.isApproved) {
           errorResponse(422, "Your Account is not verified. Please contact to admin", res)
         } else {
           if (bcrypt.compareSync(password, docs["_doc"].password) === true) {
             docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
-            successResponse(201, "Login successfully.", docs, res);
+            successResponse(200, "Login successfully.", docs, res);
           } else {
             errorResponse(422, "Password does not matched.", res)
           }
