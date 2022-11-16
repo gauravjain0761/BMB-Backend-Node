@@ -26,7 +26,7 @@ exports.verifyDocAccount = async (req, res, next) => {
   }
 }
 
-exports.verifydmin = async (req,res,next) => {
+exports.verifydmin = (req,res,next) => {
   let {email} = req.body; 
   if (email.match("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")) {
     next();

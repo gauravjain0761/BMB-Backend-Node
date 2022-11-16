@@ -6,7 +6,7 @@ const path = require("path");
 
 
 // ----------- API's Connect ---------
-const doctor = require("./src/routes/doctors.routes");
+const users = require("./src/routes/users.routes");
 const admin = require("./src/routes/admin.routes");
 //-------- Mongodb connected --------------------------//
 const con = require("./src/config/db.config");
@@ -31,7 +31,7 @@ app.options("*", cors());
 app.use(express.json());
 
 app.use("/api", admin);
-app.use("/api", doctor);
+app.use("/api", users);
 
 
 app.get("/", (req, res) => {

@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const doctorsModel = require('../../models/doctors.model')
+const doctorsModel = require('../models/doctors.model')
 var bcrypt = require('bcryptjs');
 const saltRounds = process.env.SALT;
 const moment = require('moment');
 const XLSX = require('xlsx');
-const { successResponse, errorResponse } = require('../../helpers/response');
-const { generateWebToken, } = require('../../helpers/jwt');
+const { successResponse, errorResponse } = require('../helpers/response');
+const { generateWebToken, } = require('../helpers/jwt');
 const axios = require('axios');
 
 //============================= Doctor Register==========================//
@@ -135,3 +135,16 @@ exports.importexcel = async (req, res) => {
   // }).catch((err) => console.log('error', err));
 }
 
+//============================= Approve Doctor==========================//
+exports.approvedoctor = async (req, res) => {
+  let user = req.userData;
+  try {
+    if (user.account_type == "ADMIN") {
+      let { doctorId, status } = req.body;
+      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: status } }).then(docs => { successResponse(200, "Status updated successfully",{}, res) })
+    } else {
+      errorResponse(401, "Authentication failed", res);
+    }
+  } catch (err) { console.log('error', err) }
+
+}

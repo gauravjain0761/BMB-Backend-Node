@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 const saltRounds = process.env.SALT;
-const AdminModel = require('../../models/admin.model');
-const { successResponse, errorResponse } = require('../../helpers/response');
-const { generateWebToken, } = require('../../helpers/jwt');
+const AdminModel = require('../models/admin.model');
+const { successResponse, errorResponse } = require('../helpers/response');
+const { generateWebToken, } = require('../helpers/jwt');
 
 //============================= Admin Register ==========================//
 exports.createAdmin = async (req, res, next) => {

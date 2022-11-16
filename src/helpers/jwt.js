@@ -2,6 +2,7 @@ var jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SCERT;
 const { errorResponse } = require('../helpers/response');
 const doctorsModel = require('../models/doctors.model');
+const adminModel = require("../models/admin.model");
 exports.generateWebToken = (docId) => {
   return jwt.sign({
     data: docId,
@@ -15,10 +16,18 @@ exports.verifyWebToken = async (req, res, next) => {
       if (err) {
         errorResponse(401, "Authentication failed", res)
       } else {
-        // console.log(decoded);
-        await doctorsModel.findOne({ _id: decoded.data }).then((docs) => {
-          req['userdata'] = docs;
-          next();
+        await doctorsModel.findOne({ _id: decoded.data }).then(async (docs) => {
+          if (docs) {
+            req['userData'] = docs;
+            next();
+          } else {
+            await adminModel.findOne({ _id: decoded.data }).then((admin) => {
+              req['userData'] = admin;
+              next();
+            }).catch((err) => {
+              console.log('auth token error', err);
+            })
+          }
         }).catch((err) => { console.log('auth token error', err); })
       }
     })
