@@ -4,7 +4,6 @@ let port = 5000;
 require("dotenv").config();
 const path = require("path");
 
-
 // ----------- API's Connect ---------
 const users = require("./src/routes/users.routes");
 const admin = require("./src/routes/admin.routes");

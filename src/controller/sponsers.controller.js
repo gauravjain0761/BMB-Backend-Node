@@ -49,10 +49,10 @@ exports.updateSponser = async (req, res) => {
             let updatedData = {};
             if (req.body.title && req.body.title != "") {
                 updatedData.title = req.body.title;
-            } 
+            }
             if (req.body.weblink && req.body.weblink != "") {
                 updatedData.weblink = req.body.weblink;
-            } 
+            }
             if (req.body.image && req.body.image != "") {
                 updatedData.image = req.body.image;
             }
@@ -64,4 +64,25 @@ exports.updateSponser = async (req, res) => {
         }
     } catch (err) { console.log('error', err) }
 
+}
+
+exports.removeSponser = async (req, res) => {
+    try {
+        let sponserId = req.params.id;
+        let user = req.userData;
+        if (user.account_type == "ADMIN") {
+            console.log('eventId', sponserId, user);
+            await sponsersModel.findByIdAndRemove({ _id: sponserId }).then((docs) => {
+                successResponse(200, "Sponser has been removed successfully", {}, res);
+            }).catch(err => {
+                errorResponse(422, err.message, res);
+            })
+        }
+        else {
+            errorResponse(401, "Authentication failed", res);
+
+        }
+    } catch (err) {
+        console.log('error', err);
+    }
 }

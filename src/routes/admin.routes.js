@@ -20,12 +20,14 @@ router.post("/admin/events/add",verifyWebToken, eventsController.addEvent);
 router.get("/admin/events/getAll", verifyWebToken, eventsController.getEvents);
 router.get("/admin/events/:id", verifyWebToken, eventsController.getEventById); 
 router.put("/admin/updateevent/:id", verifyWebToken, eventsController.updateEvent);
+router.delete("/admin/remove_event/:id", verifyWebToken, eventsController.removeEvent);
 
 //============================= Sponsers ==========================//
 router.post("/admin/sponser/add",verifyWebToken,sponsorsController.createSponser);
 router.get("/admin/sponser/getAll", verifyWebToken, sponsorsController.getSposers);
 router.get("/admin/sponser/:id", verifyWebToken, sponsorsController.getSposerById); 
 router.put("/admin/updatesponser/:id", verifyWebToken,sponsorsController.updateSponser);
+router.delete("/admin/remove_sponser/:id", verifyWebToken, sponsorsController.removeSponser);
 
 module.exports = router;
 

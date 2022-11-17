@@ -81,3 +81,24 @@ exports.updateEvent = async (req, res) => {
     } catch (err) { console.log('error', err) }
 
 }
+
+exports.removeEvent = async (req, res) => {
+try{
+  let eventId = req.params.id;
+  let user = req.userData;
+  if (user.account_type == "ADMIN") {
+    console.log('eventId', eventId, user);
+   await eventsModel.findByIdAndRemove({_id: eventId}).then((docs)=>{
+successResponse(200, "Event has been removed successfully", {}, res);
+   }).catch(err =>{
+    errorResponse(422, err.message, res);
+   })
+  }
+  else {
+    errorResponse(401, "Authentication failed", res);
+
+  }
+}catch(err){
+   console.log('error', err); 
+}
+}
