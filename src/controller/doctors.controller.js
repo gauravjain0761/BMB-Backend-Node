@@ -7,6 +7,7 @@ const XLSX = require('xlsx');
 const { successResponse, errorResponse } = require('../helpers/response');
 const { generateWebToken, } = require('../helpers/jwt');
 const axios = require('axios');
+const { existedImageremove } = require("../helpers/imageUpload");
 
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
@@ -93,12 +94,75 @@ exports.getDoctorById = async (req, res) => {
 //============================= Update Doctor ==========================//
 exports.updatedoctor = async (req, res) => {
   try {
-    console.log('req', req.params.id);
+    let user = req.userData;
+    let updatedData = {};
+    if (req.body.email && req.body.email != "") {
+      await doctorsModel.findOne({ email: req.body.email }).select("_id").then((doc) => {
+        if (doc != null) {
+          if (doc._id.toString() === user._id.toString()) {
+            updatedData.email = req.body.email;
+          } else {
+            errorResponse(422, "Email is already associated with an account.", res);
+          }
+        }
+      });
+    }
+    if (req.body.contact_number && req.body.contact_number != "") {
+      await doctorsModel.findOne({ contact_number: req.body.contact_number }).select("_id").then((doc) => {
+        if (doc != null) {
+          if (doc._id.toString() === user._id.toString()) {
+            updatedData.contact_number = req.body.contact_number;
+          } else {
+            errorResponse(422, "Contact number is already associated with an account.", res);
+          }
+        }
+      });
+    }
+    updatedData.first_name = req.body.first_name ? req.body.first_name : user?.first_name;
+    updatedData.last_name = req.body.last_name ? req.body.last_name : user?.last_name;
+    updatedData.middle_name = req.body.middle_name ? req.body.middle_name : user?.middle_name;
+    updatedData.qualification = req.body.qualification ? req.body.qualification : user?.qualification;
+    updatedData.speciality = req.body.speciality ? req.body.speciality : user?.speciality;
+    updatedData.reg_number = req.body.reg_number ? req.body.reg_number : user?.reg_number;
+    updatedData.dob = req.body.dob ? req.body.dob : user?.dob;
+    updatedData.blood_group = req.body.blood_group ? req.body.blood_group : user?.blood_group;
+    if (req.body.image && req.body.image != user?.image) {
+      existedImageremove(user.image);
+      updatedData.image = req.body.image ? req.body.image : user?.image;
+    }
+    await doctorsModel.findOneAndUpdate({ _id: user._id }, { $set: updatedData }).then(async (docs) => {
+      await doctorsModel.findOne({ _id: user._id }).select("first_name middle_name last_name").then(async (docs) => {
+        title = docs.middle_name !== "" ? `Dr. ${docs.first_name} ${docs.middle_name} ${docs.last_name}` : `Dr. ${docs.first_name} ${docs.last_name}`
+        await doctorsModel.findOneAndUpdate({ _id: user._id }, { $set: { title: title } }).then(async (docs) => {
+          successResponse(200, "Doctor has been updated successfully.", {}, res);
+        })
+      })
+    })
   }
   catch (err) {
     console.log('error--->', err);
   }
 }
+
+//============================= Approve Doctor==========================//
+exports.approvedoctor = async (req, res) => {
+  let user = req.userData;
+  try {
+    if (user.account_type == "ADMIN") {
+      let { doctorId, status } = req.body;
+      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: status } }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
+    } else {
+      errorResponse(401, "Authentication failed", res);
+    }
+  } catch (err) { console.log('error', err) }
+
+}
+
+//============================= Forget Password =============================//
+exports.forgetPassword = async (req, res,) => { }
+
+//============================= OTP Match =============================//
+exports.verifyOtpMatch = async (req, res) => { }
 
 //============================= Import Excel==========================//
 exports.importexcel = async (req, res) => {
@@ -135,16 +199,3 @@ exports.importexcel = async (req, res) => {
   // }).catch((err) => console.log('error', err));
 }
 
-//============================= Approve Doctor==========================//
-exports.approvedoctor = async (req, res) => {
-  let user = req.userData;
-  try {
-    if (user.account_type == "ADMIN") {
-      let { doctorId, status } = req.body;
-      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: status } }).then(docs => { successResponse(200, "Status updated successfully",{}, res) })
-    } else {
-      errorResponse(401, "Authentication failed", res);
-    }
-  } catch (err) { console.log('error', err) }
-
-}

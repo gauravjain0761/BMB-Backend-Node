@@ -14,15 +14,15 @@ const eventsSchema = new mongoose.Schema({
         type: String,
     },
     date: {
-        type: String,
+        type: Date,
         required: true
     },
-    time: {
-        type: String,
-        required: true
-    },
-    fees: {
-        type: String,
+    // time: {
+    //     type: String,
+    //     required: true
+    // },
+    bookingAmount: {
+        type: Number,
         required: true
     },
     address: {
@@ -30,6 +30,7 @@ const eventsSchema = new mongoose.Schema({
         required: true
     },    
     image: { type: String,},
+    sponsers: {type: Array, required: true},
     isActive: {
         type: Boolean,
     }

@@ -7,18 +7,20 @@ exports.addEvent = async (req, res) => {
     let user = req.userData;
     try {
         if (user.account_type == "ADMIN") {
-            let { title, organiser, content, date, time, fees, image, address } = req.body;
+            let { title, organiser, content, date, time, bookingAmount, image, address, sponsers } = req.body;
             let obj = {
                 title: title,
                 organiser: organiser,
                 content: content,
                 date: date,
-                time: time,
-                fees: fees,
+                // time: time,
+                bookingAmount: bookingAmount,
                 image: image,
+                sponsers: sponsers,
                 address: address,
                 createdBy: "ADMIN",
                 isActive: true,
+                sponsers : sponsers,
             }
             await new eventsModel(obj).save().then(docs => {
                 successResponse(201, "Event has been created.", docs, res);
@@ -63,8 +65,8 @@ exports.updateEvent = async (req, res) => {
             if (req.body.content && req.body.content != "") {
                 updatedData.content = req.body.content;
             } 
-            if (req.body.fees && req.body.fees != "") {
-                updatedData.fees = req.body.fees;
+            if (req.body.bookingAmount && req.body.bookingAmount != "") {
+                updatedData.bookingAmount = req.body.bookingAmount;
             }
             if (req.body.address && req.body.address != "") {
                 updatedData.address = req.body.address;

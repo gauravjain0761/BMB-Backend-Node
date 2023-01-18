@@ -65,6 +65,9 @@ const doctorschema = new mongoose.Schema({
     account_type: {
       type : String,
       required: true,    
+    },
+    image:{
+        type: String,
     }
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }

@@ -1,15 +1,19 @@
 const { errorResponse } = require('../helpers/response');
 const doctorsModel = require('../models/doctors.model');
 exports.verifyEmail = (req, res, next) => {
-  let { email, contact_number } = req.body;
+  let { email} = req.body;
   if (email.match("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")) {
-    if (contact_number.match(/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/)) {
-      next()
-    } else {
-      errorResponse(406, "Contact Number is not valid.", res);
-    }
+  next()
   } else {
     errorResponse(406, "Email is not valid.", res);
+  }
+}
+exports.verifyPhone = (req, res, next) => {
+  let {contact_number} = req.body;
+  if (contact_number.match(/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/)) {
+    next()
+  } else {
+    errorResponse(406, "Contact Number is not valid.", res);
   }
 }
 
