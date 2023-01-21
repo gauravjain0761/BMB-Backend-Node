@@ -16,12 +16,11 @@ exports.UploadFile = async (req, res) => {
   if (file.size > 20000) {
     let extNames = file.originalname.split(/\.(?=[^\.]+$)/);
     if (["jpg", "jpeg", "png", "svg", "pdf"].includes(extNames[1].toLowerCase())) {
-      var fileName = `${extNames[0]}_${Date.now().toString()}`;
+      var fileName = `image_${Date.now().toString()}.${extNames[1]}`;
       switch (type.toUpperCase()) {
-        case "CATEGORY":
-        case "PRODUCT":
+        case "ANNOUNCEMENT":
           await sharp(file.buffer)
-            .resize(300, 300)
+            .resize(500, 450)
             .toBuffer()
             .then((data) => {
               file["buffer"] = data;
@@ -31,7 +30,7 @@ exports.UploadFile = async (req, res) => {
           break;
         case "PROFILE":
           await sharp(file.buffer)
-            .resize(250, 250)
+            .resize(350, 350)
             .toBuffer()
             .then((data) => {
               file["buffer"] = data;
@@ -63,6 +62,7 @@ exports.UploadFile = async (req, res) => {
           break;
       }
       if (file["type"]) {
+        console.log('file size', file);
         await Imageupload(file, res);
       }
     } else

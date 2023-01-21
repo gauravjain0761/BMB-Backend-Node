@@ -40,3 +40,23 @@ exports.createRegistration = async (req, res) => {
         console.log('error creating registration', error);
     }
 }
+
+exports.getAllRegistrations = async (req, res)=>{
+    try{
+        let page = req.query.page ? parseInt(req.query.page) : 1;
+        let limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        let skip = page > 1 ? (page - 1) * limit : 0;
+        let total = await registrationModel.countDocuments({});
+        await registrationModel.find({ }).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
+            res.status(200).json({
+                message: "Registration has been retrieved successfully.",
+                status:true,
+                data: docs,
+                total : total
+            })
+        }).catch(error => { errorResponse(500, error.message, res) })
+    
+    }catch(error){
+        errorResponse(500, error.message, res);
+    }
+}
