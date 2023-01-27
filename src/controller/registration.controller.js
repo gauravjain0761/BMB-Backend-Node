@@ -22,7 +22,7 @@ exports.createRegistration = async (req, res) => {
                         bookingAmount: docs.bookingAmount,
                         totalAmount: docs.bookingAmount * members.length,
                         sponsers: docs?.sponsers,
-                        organiser:docs?.organiser,
+                        organiser: docs?.organiser,
                         status: "PENDING",
                         payment_status: "PENDING"
                     }
@@ -41,22 +41,33 @@ exports.createRegistration = async (req, res) => {
     }
 }
 
-exports.getAllRegistrations = async (req, res)=>{
-    try{
+exports.getAllRegistrations = async (req, res) => {
+    try {
         let page = req.query.page ? parseInt(req.query.page) : 1;
         let limit = req.query.limit ? parseInt(req.query.limit) : 10;
         let skip = page > 1 ? (page - 1) * limit : 0;
         let total = await registrationModel.countDocuments({});
-        await registrationModel.find({ }).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
+        await registrationModel.find({}).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
             res.status(200).json({
                 message: "Registration has been retrieved successfully.",
-                status:true,
+                status: true,
                 data: docs,
-                total : total
+                total: total
             })
         }).catch(error => { errorResponse(500, error.message, res) })
-    
-    }catch(error){
+
+    } catch (error) {
+        errorResponse(500, error.message, res);
+    }
+}
+
+exports.getById = async (req, res) => {
+    try {
+        let id = req.params.id;
+        await registrationModel.find({ _id: id }).then((docs) => {
+            successResponse(200, "Resgistration has been retrieved.", docs, res)
+        }).catch(error => { errorResponse(500, error.message, res) })
+    } catch (error) {
         errorResponse(500, error.message, res);
     }
 }

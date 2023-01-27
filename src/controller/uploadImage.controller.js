@@ -1,12 +1,9 @@
 const sharp = require("sharp");
 const { Imageupload, removeImage } = require("../helpers/imageUpload");
-
 //=========== Upload Image ==================
 exports.UploadFile = async (req, res) => {
-  console.log("imageUpload api called", req.params);
   const file = req.file;
   const type = req.params.type;
-  console.log("type", type);
   if (!file) {
     return res.status(406).send({
       message: "Please select an image",
@@ -31,16 +28,6 @@ exports.UploadFile = async (req, res) => {
         case "PROFILE":
           await sharp(file.buffer)
             .resize(350, 350)
-            .toBuffer()
-            .then((data) => {
-              file["buffer"] = data;
-              file["fileName"] = fileName;
-              file["type"] = type;
-            });
-          break;
-        case "STORE":
-          await sharp(file.buffer)
-            .resize(300, 300)
             .toBuffer()
             .then((data) => {
               file["buffer"] = data;

@@ -51,7 +51,7 @@ router.delete("/admin/certificate/:id",verifyWebToken, certificateController.rem
 
 //============================= Registration ==========================//
 router.get("/admin/registration/getall",verifyWebToken, registrationController.getAllRegistrations);
-router.get("/admin/getregistrationbyid",verifyWebToken, registrationController.getAllRegistrations)
+router.get("/admin/getregistrationbyid/:id",verifyWebToken, registrationController.getById)
 
 
 module.exports = router;

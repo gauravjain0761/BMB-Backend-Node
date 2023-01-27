@@ -18,7 +18,6 @@ exports.Imageupload = async (file, res) => {
     };
     s3bucket.upload(params, async function (err, data) {
       if (err) {
-        console.log("err", err);
         res.status(500).json({
           message: "somthing went wrong",
           status: false,

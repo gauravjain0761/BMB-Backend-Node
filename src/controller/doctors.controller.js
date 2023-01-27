@@ -96,39 +96,40 @@ exports.updatedoctor = async (req, res) => {
   try {
     let user = req.userData;
     let updatedData = {};
-    if (req.body.email && req.body.email != "") {
-      await doctorsModel.findOne({ email: req.body.email }).select("_id").then((doc) => {
+    let body = req.body;
+    if (body.email && body.email != "") {
+      await doctorsModel.findOne({ email: body.email }).select("_id").then((doc) => {
         if (doc != null) {
           if (doc._id.toString() === user._id.toString()) {
-            updatedData.email = req.body.email;
+            updatedData.email = body.email;
           } else {
             errorResponse(422, "Email is already associated with an account.", res);
           }
         }
       });
     }
-    if (req.body.contact_number && req.body.contact_number != "") {
-      await doctorsModel.findOne({ contact_number: req.body.contact_number }).select("_id").then((doc) => {
+    if (body.contact_number && body.contact_number != "") {
+      await doctorsModel.findOne({ contact_number: body.contact_number }).select("_id").then((doc) => {
         if (doc != null) {
           if (doc._id.toString() === user._id.toString()) {
-            updatedData.contact_number = req.body.contact_number;
+            updatedData.contact_number = body.contact_number;
           } else {
             errorResponse(422, "Contact number is already associated with an account.", res);
           }
         }
       });
     }
-    updatedData.first_name = req.body.first_name ? req.body.first_name : user?.first_name;
-    updatedData.last_name = req.body.last_name ? req.body.last_name : user?.last_name;
-    updatedData.middle_name = req.body.middle_name ? req.body.middle_name : user?.middle_name;
-    updatedData.qualification = req.body.qualification ? req.body.qualification : user?.qualification;
-    updatedData.speciality = req.body.speciality ? req.body.speciality : user?.speciality;
-    updatedData.reg_number = req.body.reg_number ? req.body.reg_number : user?.reg_number;
-    updatedData.dob = req.body.dob ? req.body.dob : user?.dob;
-    updatedData.blood_group = req.body.blood_group ? req.body.blood_group : user?.blood_group;
-    if (req.body.image && req.body.image != user?.image) {
+    updatedData.first_name = body.first_name ? body.first_name : user?.first_name;
+    updatedData.last_name = body.last_name ? body.last_name : user?.last_name;
+    updatedData.middle_name = body.middle_name ? body.middle_name : user?.middle_name;
+    updatedData.qualification = body.qualification ? body.qualification : user?.qualification;
+    updatedData.speciality = body.speciality ? body.speciality : user?.speciality;
+    updatedData.reg_number = body.reg_number ? body.reg_number : user?.reg_number;
+    updatedData.dob = body.dob ? body.dob : user?.dob;
+    updatedData.blood_group = body.blood_group ? body.blood_group : user?.blood_group;
+    if (body.image && body.image != user?.image) {
       existedImageremove(user.image);
-      updatedData.image = req.body.image ? req.body.image : user?.image;
+      updatedData.image = body.image ? body.image : user?.image;
     }
     await doctorsModel.findOneAndUpdate({ _id: user._id }, { $set: updatedData }).then(async (docs) => {
       await doctorsModel.findOne({ _id: user._id }).select("first_name middle_name last_name").then(async (docs) => {

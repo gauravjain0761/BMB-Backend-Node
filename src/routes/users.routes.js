@@ -9,7 +9,7 @@ const uploadMiddleware = require("../middleware/upload");
 const { verifyWebToken } = require("../helpers/jwt");
 
 //============================= Docotor Account ==========================//
-router.post("/doctor/register",verifyEmail, verifyPhone, verifyDocAccount, doctorsController.register);
+router.post("/doctor/signup",verifyEmail, verifyPhone, verifyDocAccount, doctorsController.register);
 router.post("/doctor/login",doctorsController.doctorlogin);
 router.post("/doctor/importdoctors",doctorsController.importexcel);
 router.put("/doctor/update",verifyWebToken, doctorsController.updatedoctor);
