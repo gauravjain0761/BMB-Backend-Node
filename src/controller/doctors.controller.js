@@ -25,13 +25,21 @@ exports.register = async (req, res) => {
       reg_number: reg_number,
       dob: dob,
       blood_group: blood_group,
-      account_type: "USER"
+      account_type: "DOCTOR"
     }
     if (password != null && password != '') {
       object.password = bcrypt.hashSync(password, saltRounds);
-      let counts = await doctorsModel.countDocuments();
+      let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
       let last = await doctorsModel.findOne({}).sort({ _id: -1 }).limit(1).select("docId");
-      object.docId = counts === 0 ? 'BMBDR1000' : `BMBDR${parseInt(last.docId.split('R')[1]) + 1}`;
+      function generateId(value) {
+        let num = "";
+        let increment = (parseInt(value.split("R")[1]) + 1).toString();
+        for (let i = 0; i <= 3 - increment.length; i++) {
+          num = num + "0";
+        }
+        return num + increment;
+      }
+      object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001'  ;
       await new doctorsModel(object).save().then(async (docs) => {
         docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
         successResponse(201, "Doctor has been registered successfully.", docs, res);
@@ -75,7 +83,10 @@ exports.doctorlogin = async (req, res) => {
 //============================= Get All Doctor ==========================//
 exports.getAllDoctors = async (req, res) => {
   try {
-    await doctorsModel.find().sort({ _id: -1 }).select("-password").then(docs => { successResponse(200, "Doctos retrieved successfully.", docs, res) }).catch(err => { console.log('err', err) });
+    await doctorsModel.find().sort({ _id: -1 })
+    .select("-password -created_at -updated_at -__v -account_type -blood_group")
+    .then(docs => { successResponse(200, "Doctos retrieved successfully.", docs, res) })
+    .catch(err => { console.log('err', err) });
   } catch (error) {
     console.log('error--->', error);
   }
