@@ -3,8 +3,8 @@ const pushnotifyModel = require('../models/pushnotify.model');
 const doctorModel = require('../models/doctors.model');
 const { successResponse, errorResponse } = require('../helpers/response');
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,8 +21,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
 
 exports.createNotification = async (req, res) => {
     let user = req.userData;
@@ -37,7 +37,7 @@ exports.createNotification = async (req, res) => {
             }
             await pushnotifyModel(updateData).save().then((docs) => {
                 successResponse(201, "Notification saved successfully", docs, res);
-                sendPushNotify(docs);
+                // sendPushNotify(docs);
             }).catch(err => errorResponse(422, err.message, res))
         } else {
             errorResponse(401, "Authentication failed", res);
@@ -63,35 +63,35 @@ exports.getAll = async (req, res) => {
     }
 }
 
-const sendPushNotify = async (data) => {
-    // console.log('data', data);
-    let doctors = await doctorModel.find({});
-    for (let ele of doctors) {
-        if(ele.device_token != ''){
-            let payload = {
-                to: ele["_doc"].device_token,
-                notification: {
-                    body: "Firebase Cloud Message Body",
-                    title: "Firebase Cloud Message Title",
-                    sound: "default",
-                    subtitle: "Firebase Cloud Message Subtitle"
-                }
-            }
-            let docToken = "dGkGMOlzTcCbwHKChqDnuX:APA91bEITu0S7IPKsXKIA4WU7HU_r7zhi56QTmYRac2uzhIkZ0H1XH8tUKv3VYfdze6c33dbe3CVnE3QbvMkiftkKi6bI0zpIYsWbRLsJZi6Wpa9ybgusTylR8Wt8aQi8pxMl96YvTT4"
-            console.log('body',docToken, body);
-             analytics
-            .messaging()
-            .sendToDevice(docToken, payload)
-            .then((response) => {
-              console.log(
-                "notificaiton sent " +
-                response.canonicalRegistrationTokenCount,
-                response.successCount,
-                response.results
-              );
-            });
-        }
+// const sendPushNotify = async (data) => {
+//     // console.log('data', data);
+//     let doctors = await doctorModel.find({});
+//     for (let ele of doctors) {
+//         if(ele.device_token != ''){
+//             let payload = {
+//                 to: ele["_doc"].device_token,
+//                 notification: {
+//                     body: "Firebase Cloud Message Body",
+//                     title: "Firebase Cloud Message Title",
+//                     sound: "default",
+//                     subtitle: "Firebase Cloud Message Subtitle"
+//                 }
+//             }
+//             let docToken = "dGkGMOlzTcCbwHKChqDnuX:APA91bEITu0S7IPKsXKIA4WU7HU_r7zhi56QTmYRac2uzhIkZ0H1XH8tUKv3VYfdze6c33dbe3CVnE3QbvMkiftkKi6bI0zpIYsWbRLsJZi6Wpa9ybgusTylR8Wt8aQi8pxMl96YvTT4"
+//             console.log('body',docToken, body);
+//              analytics
+//             .messaging()
+//             .sendToDevice(docToken, payload)
+//             .then((response) => {
+//               console.log(
+//                 "notificaiton sent " +
+//                 response.canonicalRegistrationTokenCount,
+//                 response.successCount,
+//                 response.results
+//               );
+//             });
+//         }
        
-    }
+//     }
 
-}
+// }
