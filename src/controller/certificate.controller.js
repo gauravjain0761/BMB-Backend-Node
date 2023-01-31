@@ -7,9 +7,9 @@ exports.addCertificate = async (req, res) => {
     let user = req.userData;
     try {
         if (user.account_type == "ADMIN") {
-            let { user, url } = req.body;
+            let { docId, url } = req.body;
             let obj = {
-                user: user,
+                docId: docId,
                 url: url,
                 isActive: true,
             }

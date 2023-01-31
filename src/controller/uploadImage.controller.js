@@ -35,6 +35,8 @@ exports.UploadFile = async (req, res) => {
               file["type"] = type;
             });
           break;
+        case "SPONSOR":
+        case "EVENT":  
         case "CERTIFICATE":
           // await sharp(file.buffer)
           //   .resize(446, 446)

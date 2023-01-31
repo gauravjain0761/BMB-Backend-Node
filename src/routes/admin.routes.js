@@ -42,6 +42,7 @@ router.delete("/admin/remove_announcement/:id", verifyWebToken, announcementsCon
 
 //============================= Push Notification ==========================//
 router.post("/admin/pushnotify/add",verifyWebToken, pushnotifyController.createNotification);
+router.get("/admin/pushnotify/getall",verifyWebToken, pushnotifyController.getAll);
 
 //============================= Certificate ==========================//
 router.post("/admin/certificate/add",verifyWebToken, certificateController.addCertificate);
@@ -49,7 +50,7 @@ router.get("/admin/certificate/getall",verifyWebToken, certificateController.get
 router.put("/admin/certificate/:id",verifyWebToken, certificateController.editCertificate);
 router.delete("/admin/certificate/:id",verifyWebToken, certificateController.removecertificate);
 
-//============================= Registration ==========================//
+//============================= Event Registration ==========================//
 router.get("/admin/registration/getall",verifyWebToken, registrationController.getAllRegistrations);
 router.get("/admin/getregistrationbyid/:id",verifyWebToken, registrationController.getById)
 

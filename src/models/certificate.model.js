@@ -1,9 +1,10 @@
 const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
+const doctorsModel = require("./doctors.model");
 
 const ceritficateSchema = new mongoose.Schema({
     url: { type: String, required: true },
-    user: { type: ObjectId, required: true },
+    docId: { type: ObjectId, required: true, ref: doctorsModel },
     isActive: {
         type: Boolean,
     }
