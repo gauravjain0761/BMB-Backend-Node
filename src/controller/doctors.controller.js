@@ -12,43 +12,49 @@ const { existedImageremove } = require("../helpers/imageUpload");
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, password, contact_number, qualification, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate} = req.body;
-    let object = {
-      title: middle_name ? `Dr. ${first_name} ${middle_name} ${last_name}` : `Dr. ${first_name} ${last_name}`,
-      first_name: first_name,
-      middle_name: middle_name,
-      last_name: last_name,
-      email: email,
-      contact_number: contact_number,
-      qualification: qualification,
-      speciality: speciality,
-      reg_number: reg_number,
-      dob: dob,
-      isApproved: "PENDING",
-      blood_group: blood_group,
-      account_type: "DOCTOR",
-      degree_certificate: degree_certificate ? degree_certificate : "",
-      mmc_certificate: mmc_certificate ? mmc_certificate : ""
-    }
-    if (password != null && password != '') {
-      object.password = bcrypt.hashSync(password, saltRounds);
-      let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
-      let last = await doctorsModel.findOne({}).sort({ _id: -1 }).limit(1).select("docId");
-      function generateId(value) {
-        let num = "";
-        let increment = (parseInt(value.split("R")[1]) + 1).toString();
-        for (let i = 0; i <= 3 - increment.length; i++) {
-          num = num + "0";
-        }
-        return num + increment;
+    let { first_name, middle_name, last_name, email, password, contact_number, qualification, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image} = req.body;
+    let existedRegistration = await doctorsModel.countDocuments({reg_number : reg_number})
+    if (existedRegistration > 0) {
+      errorResponse(422, "Registration number already exists", res);
+    } else {
+      let object = {
+        title: middle_name ? `Dr. ${first_name} ${middle_name} ${last_name}` : `Dr. ${first_name} ${last_name}`,
+        first_name: first_name,
+        middle_name: middle_name,
+        last_name: last_name,
+        email: email,
+        contact_number: contact_number,
+        qualification: qualification,
+        speciality: speciality,
+        reg_number: reg_number,
+        dob: dob,
+        isApproved: "PENDING",
+        blood_group: blood_group,
+        account_type: "DOCTOR",
+        image: image ? image: "",
+        degree_certificate: degree_certificate ? degree_certificate : "",
+        mmc_certificate: mmc_certificate ? mmc_certificate : ""
       }
-      object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001'  ;
-      await new doctorsModel(object).save().then(async (docs) => {
-        // docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
-        successResponse(201, "Doctor has been registered successfully.", docs, res);
-      }).catch(err => {
-        errorResponse(422, err.message, res)
-      })
+      if (password != null && password != '') {
+        object.password = bcrypt.hashSync(password, saltRounds);
+        let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
+        let last = await doctorsModel.findOne({}).sort({ _id: -1 }).limit(1).select("docId");
+        function generateId(value) {
+          let num = "";
+          let increment = (parseInt(value.split("R")[1]) + 1).toString();
+          for (let i = 0; i <= 3 - increment.length; i++) {
+            num = num + "0";
+          }
+          return num + increment;
+        }
+        object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001'  ;
+        await new doctorsModel(object).save().then(async (docs) => {
+          // docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
+          successResponse(201, "Doctor has been registered successfully.", docs, res);
+        }).catch(err => {
+          errorResponse(422, err.message, res)
+        })
+      }
     }
   } catch (err) {
     console.log("error---->", err);
@@ -165,7 +171,7 @@ exports.approvedoctor = async (req, res) => {
   try {
     if (user.account_type == "ADMIN") {
       let { doctorId, isApproved} = req.body;
-      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: isApproved} }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
+      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: isApproved.toUpperCase()} }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {
       errorResponse(401, "Authentication failed", res);
     }
