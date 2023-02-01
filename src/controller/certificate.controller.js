@@ -66,3 +66,15 @@ exports.removecertificate = async (req, res) => {
     } catch (err) { console.log('error', err) }
 
 }
+
+exports.getCertificateById =async (req, res) => {
+ try{
+   let paramsId = req.params.id;
+   await certifcateModel.findOne({_id: paramsId}).populate({path: "docId", select: ["title"]})
+   .then((docs) => {
+    successResponse(200, "Certificate has been retrieved successfully.",docs, res);
+   }).catch(err => errorResponse(422, err.message,res));
+ }catch(err) { 
+    errorResponse(500, err.message, res)
+ }
+}
