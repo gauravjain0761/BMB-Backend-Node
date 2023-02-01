@@ -23,7 +23,9 @@ exports.addCertificate = async (req, res) => {
 
 exports.getall = async (req, res) => {
     try {
-        await certifcateModel.find({ isActive: true }).sort({ _id: -1 }).then((docs) => { successResponse(200, "Certificate retrieved successfully.", docs, res) }).catch(err => errorResponse(422, err.message, res))
+        await certifcateModel.find({ isActive: true }).sort({ _id: -1 })
+        .populate({path: "docId", select: ["title"]})
+        .then((docs) => { successResponse(200, "Certificate retrieved successfully.", docs, res) }).catch(err => errorResponse(422, err.message, res))
     }
     catch (err) { console.log('error', err) }
 }
