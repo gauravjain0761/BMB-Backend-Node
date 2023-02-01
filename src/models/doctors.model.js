@@ -11,12 +11,10 @@ const doctorschema = new mongoose.Schema({
     last_name: { type: String, required: true},
     email: {
         type: String,
-        // required: true,
         unique: true,
     },
     contact_number: {
         type: String,
-        // required: true,
         unique: true,
     },
     password: {
@@ -24,9 +22,9 @@ const doctorschema = new mongoose.Schema({
         required: true
     },
     isApproved: {
-        type: Boolean,
+        type: String,
         required: true,
-        default: false
+        enum : ["PENDING", "APPROVED", "REJECTED"]
     },
     qualification: {
         type: String,
@@ -68,6 +66,12 @@ const doctorschema = new mongoose.Schema({
     },
     image:{
         type: String,
+    },
+    degree_certificate:{
+        type : String,
+    },
+    mmc_certificate:{
+        type : String,
     }
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }

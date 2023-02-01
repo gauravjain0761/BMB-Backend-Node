@@ -12,7 +12,7 @@ const { existedImageremove } = require("../helpers/imageUpload");
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, password, contact_number, qualification, speciality, reg_number, dob, blood_group } = req.body;
+    let { first_name, middle_name, last_name, email, password, contact_number, qualification, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate} = req.body;
     let object = {
       title: middle_name ? `Dr. ${first_name} ${middle_name} ${last_name}` : `Dr. ${first_name} ${last_name}`,
       first_name: first_name,
@@ -24,8 +24,11 @@ exports.register = async (req, res) => {
       speciality: speciality,
       reg_number: reg_number,
       dob: dob,
+      isApproved: "PENDING",
       blood_group: blood_group,
-      account_type: "DOCTOR"
+      account_type: "DOCTOR",
+      degree_certificate: degree_certificate ? degree_certificate : "",
+      mmc_certificate: mmc_certificate ? mmc_certificate : ""
     }
     if (password != null && password != '') {
       object.password = bcrypt.hashSync(password, saltRounds);
@@ -41,7 +44,7 @@ exports.register = async (req, res) => {
       }
       object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001'  ;
       await new doctorsModel(object).save().then(async (docs) => {
-        docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
+        // docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
         successResponse(201, "Doctor has been registered successfully.", docs, res);
       }).catch(err => {
         errorResponse(422, err.message, res)
@@ -161,8 +164,8 @@ exports.approvedoctor = async (req, res) => {
   let user = req.userData;
   try {
     if (user.account_type == "ADMIN") {
-      let { doctorId, status } = req.body;
-      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: status } }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
+      let { doctorId, isApproved} = req.body;
+      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: isApproved} }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {
       errorResponse(401, "Authentication failed", res);
     }
