@@ -7,6 +7,7 @@ const announcementsController = require("../controller/announcements.controller"
 const pushnotifyController = require("../controller/pushNotify.controller");
 const registrationController = require("../controller/registration.controller");
 const certificateController = require("../controller/certificate.controller");
+const quizController = require("../controller/quiz.controller");
 const { verifyadmin } = require("../middleware/validation");
 const { verifyWebToken } = require("../helpers/jwt");
 
@@ -55,6 +56,8 @@ router.get("/admin/certificategetById/:id", certificateController.getCertificate
 router.get("/admin/registration/getall",verifyWebToken, registrationController.getAllRegistrations);
 router.get("/admin/getregistrationbyid/:id",verifyWebToken, registrationController.getById)
 
+//============================= Quiz ==========================//
+router.post("/admin/quiz/add",verifyWebToken, quizController.createQuiz);
 
 module.exports = router;
 
