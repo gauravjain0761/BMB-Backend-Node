@@ -42,6 +42,10 @@ const doctorschema = new mongoose.Schema({
         type: String,
         required: true
     },
+    marriage_date: {
+        type: String,
+        required: true
+    },
     blood_group: {
         type: String,
         required: true
