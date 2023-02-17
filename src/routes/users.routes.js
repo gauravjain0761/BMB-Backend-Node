@@ -11,7 +11,7 @@ const { verifyWebToken } = require("../helpers/jwt");
 //============================= Docotor Account ==========================//
 router.post("/doctor/signup",verifyEmail, verifyPhone, verifyDocAccount, doctorsController.register);
 router.post("/doctor/login",doctorsController.doctorlogin);
-router.post("/doctor/importdoctors",doctorsController.importexcel);
+// router.post("/doctor/importdoctors",doctorsController.importexcel);
 router.put("/doctor/update",verifyWebToken, doctorsController.updatedoctor);
 router.get("/doctor/getall",verifyWebToken, ((req, res, next)=>{req.type = "USER"; next()}),doctorsController.getAllDoctors);
 router.get("/doctor/getdoctor/:id",verifyWebToken, doctorsController.getDoctorById);

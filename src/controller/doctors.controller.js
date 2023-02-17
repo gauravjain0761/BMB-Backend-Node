@@ -256,7 +256,7 @@ exports.importexcel = async (req, res) => {
   console.log('importexcel api called..');
   let workbook = XLSX.readFile("./doctorspreadsheet_copy.xlsx");
   let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  for (let i = 2; i < 370; i++) {
+  for (let i = 2; i < 371; i++) {
     let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
     const object = {};
     let name = worksheet[`B${i}`].v.split(" ");
