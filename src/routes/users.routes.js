@@ -15,6 +15,8 @@ router.post("/doctor/importdoctors",doctorsController.importexcel);
 router.put("/doctor/update",verifyWebToken, doctorsController.updatedoctor);
 router.get("/doctor/getall",verifyWebToken, doctorsController.getAllDoctors);
 router.get("/doctor/getdoctor/:id",verifyWebToken, doctorsController.getDoctorById);
+router.post("/doctor/postUpload",verifyWebToken, doctorsController.postUpload);
+router.get("/doctor/getdoctorsposts",verifyWebToken, doctorsController.getdoctorsPosts);
 
 //============================= Announcement ==========================//
 router.get("/announcement/getall",announcementController.getAllAnnouncements );
@@ -28,12 +30,7 @@ router.post("/eventregister",verifyWebToken,registrationController.createRegistr
 // router.get("/events/:id",verifyWebToken, eventsController.getEventById);
 
 //=========================== Image Upload ====================
-router.post(
-    "/imageUpload/:type",
-    uploadMiddleware.single("file"),
-    UploadFileController.UploadFile
-  );
-  
+router.post("/imageUpload/:type",uploadMiddleware.single("file"),UploadFileController.UploadFile);
   router.delete("/removefile", UploadFileController.removeFile);
 
 module.exports = router;

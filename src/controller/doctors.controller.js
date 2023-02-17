@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const doctorsModel = require('../models/doctors.model')
+const doctorsModel = require('../models/doctors.model');
+const userPostsModel = require('../models/usersPosts.model');
 var bcrypt = require('bcryptjs');
 const saltRounds = process.env.SALT;
 const moment = require('moment');
@@ -9,11 +10,21 @@ const { generateWebToken, } = require('../helpers/jwt');
 const axios = require('axios');
 const { existedImageremove } = require("../helpers/imageUpload");
 
+
+function generateId(value) {
+  let num = "";
+  let increment = (parseInt(value.split("R")[1]) + 1).toString();
+  for (let i = 0; i <= 3 - increment.length; i++) {
+    num = num + "0";
+  }
+  return num + increment;
+}
+
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, password, contact_number, qualification, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image} = req.body;
-    let existedRegistration = await doctorsModel.countDocuments({reg_number : reg_number})
+    let { first_name, middle_name, last_name, email, password, contact_number, qualification, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image } = req.body;
+    let existedRegistration = await doctorsModel.countDocuments({ reg_number: reg_number })
     if (existedRegistration > 0) {
       errorResponse(422, "Registration number already exists", res);
     } else {
@@ -31,7 +42,7 @@ exports.register = async (req, res) => {
         isApproved: "PENDING",
         blood_group: blood_group,
         account_type: "DOCTOR",
-        image: image ? image: "",
+        image: image ? image : "",
         degree_certificate: degree_certificate ? degree_certificate : "",
         mmc_certificate: mmc_certificate ? mmc_certificate : ""
       }
@@ -39,17 +50,9 @@ exports.register = async (req, res) => {
         object.password = bcrypt.hashSync(password, saltRounds);
         let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
         let last = await doctorsModel.findOne({}).sort({ _id: -1 }).limit(1).select("docId");
-        function generateId(value) {
-          let num = "";
-          let increment = (parseInt(value.split("R")[1]) + 1).toString();
-          for (let i = 0; i <= 3 - increment.length; i++) {
-            num = num + "0";
-          }
-          return num + increment;
-        }
-        object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001'  ;
+
+        object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001';
         await new doctorsModel(object).save().then(async (docs) => {
-          // docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
           successResponse(201, "Doctor has been registered successfully.", docs, res);
         }).catch(err => {
           errorResponse(422, err.message, res)
@@ -92,10 +95,10 @@ exports.doctorlogin = async (req, res) => {
 //============================= Get All Doctor ==========================//
 exports.getAllDoctors = async (req, res) => {
   try {
-    await doctorsModel.find().sort({ _id: -1 })
-    .select("-password -created_at -updated_at -__v -account_type -blood_group")
-    .then(docs => { successResponse(200, "Doctos retrieved successfully.", docs, res) })
-    .catch(err => { console.log('err', err) });
+    await doctorsModel.find({ isApproved: "APPROVED" }).sort({ _id: -1 })
+      .select("-password -created_at -updated_at -__v -account_type -blood_group")
+      .then(docs => { successResponse(200, "Doctos retrieved successfully.", docs, res) })
+      .catch(err => { console.log('err', err) });
   } catch (error) {
     console.log('error--->', error);
   }
@@ -105,7 +108,9 @@ exports.getAllDoctors = async (req, res) => {
 exports.getDoctorById = async (req, res) => {
   try {
     let docId = req.params.id;
-    await doctorsModel.findOne({ _id: docId }).select("-password").then(docs => { successResponse(200, "Doctos retrieved successfully.", docs, res) }).catch(err => { console.log('err', err) });
+    await doctorsModel.findOne({ _id: docId }).select("-password").then(docs => {
+      successResponse(200, "Doctos retrieved successfully.", docs, res)
+    }).catch(err => { console.log('err', err) });
   } catch (error) {
     console.log('error--->', error);
   }
@@ -170,8 +175,8 @@ exports.approvedoctor = async (req, res) => {
   let user = req.userData;
   try {
     if (user.account_type == "ADMIN") {
-      let { doctorId, isApproved} = req.body;
-      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: isApproved.toUpperCase()} }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
+      let { doctorId, isApproved } = req.body;
+      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: isApproved.toUpperCase() } }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {
       errorResponse(401, "Authentication failed", res);
     }
@@ -185,13 +190,13 @@ exports.forgetPassword = async (req, res,) => { }
 //============================= OTP Match =============================//
 exports.verifyOtpMatch = async (req, res) => { }
 
-//============================= Import Excel==========================//
+//============================= Import Excel ==========================//
 exports.importexcel = async (req, res) => {
   console.log('importexcel api called..');
-  let workbook = XLSX.readFile("./Docspreadsheet.xlsx");
+  let workbook = XLSX.readFile("./doctorspreadsheet_copy.xlsx");
   let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  var docdata = [];
   for (let i = 2; i < 370; i++) {
+    let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
     const object = {};
     let name = worksheet[`B${i}`].v.split(" ");
     object.title = `Dr. ${worksheet[`B${i}`].v}`
@@ -199,7 +204,7 @@ exports.importexcel = async (req, res) => {
     object.middle_name = name.length > 2 ? name[1] : "";
     object.last_name = name.length > 2 ? name[2] : name[1];
     object.qualification = worksheet[`C${i}`].v;
-    object.email = !worksheet[`G${i}`] ? "" : worksheet[`G${i}`].v;
+    object.email = !worksheet[`G${i}`] ? `xyz${i}@gmail.com` : worksheet[`G${i}`].v;
     object.contact_number = !worksheet[`F${i}`] ? "" : worksheet[`F${i}`].v;
     object.password = bcrypt.hashSync(`BMB2022`, saltRounds);
     object.home_address = !worksheet[`H${i}`] ? "" : worksheet[`H${i}`].v;
@@ -208,15 +213,49 @@ exports.importexcel = async (req, res) => {
     object.blood_group = "O+";
     object.dob = "01/01/2000";
     object.reg_number = 000000;
-    object.isApproved = false;
+    object.isApproved = "APPROVED";
     object.speciality = "xyz";
-    object.docId = `BMBDR${1000 + i - 1}`;
+    object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001';
     object.account_type = "USER";
-    // docdata.push(object);
-    console.log(i, object);
+    await doctorsModel(object).save().then((docs) => { console.log('docs', docs) })
+      .catch((err) => console.log('error', err))
   }
-  // console.log('docdata------>', docdata); 
-  // await doctorsModel.insertMany(docdata).then((docs) => { successResponse(201, "Doctors created successfully.", res)
-  // }).catch((err) => console.log('error', err));
+  successResponse(200, "Doctors imported successfully", {}, res);
 }
 
+//============================= Post Upload ==========================//
+exports.postUpload = async (req, res) => {
+  try {
+    let user = req.userData;
+    if (user.account_type === "DOCTOR") {
+      let obj = {
+        ...req.body,
+        isActive: true,
+        user: user._id
+      }
+      await new userPostsModel(obj).save().then((docs) => {
+        successResponse(201, "Post Upload Successfully", docs, res);
+      }).catch(err => { errorResponse(422, err.message, res) });
+    } else {
+      errorResponse(401, "Unauthorized user", res);
+    }
+  } catch (err) {
+    errorResponse(500, err.message, res);
+  }
+}
+
+//=============================  Post by doctor Id ==========================//
+exports.getdoctorsPosts = async (req, res) => {
+  try {
+    let user = req.userData;
+    if (user.account_type === "DOCTOR") {
+      await userPostsModel.find({user: user._id, isActive: true}).then((docs) => {
+        successResponse(201, "Post Upload Successfully", docs, res);
+      }).catch(err => { errorResponse(422, err.message, res) });
+    } else {
+      errorResponse(401, "Unauthorized user", res);
+    }
+  } catch (err) {
+    errorResponse(500, err.message, res);
+  }
+}
