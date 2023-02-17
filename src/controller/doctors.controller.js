@@ -95,7 +95,11 @@ exports.doctorlogin = async (req, res) => {
 //============================= Get All Doctor ==========================//
 exports.getAllDoctors = async (req, res) => {
   try {
-    await doctorsModel.find({ }).sort({ _id: -1 })
+    let filter = {}
+    if(req.type && req.type === "USER"){
+      filter.isApproved = "APPROVED"
+    }
+    await doctorsModel.find(filter).sort({ _id: -1 })
       .select("-password -created_at -updated_at -__v -account_type -blood_group")
       .then(docs => { successResponse(200, "Doctos retrieved successfully.", docs, res) })
       .catch(err => { console.log('err', err) });

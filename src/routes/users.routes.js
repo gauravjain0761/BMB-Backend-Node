@@ -13,7 +13,7 @@ router.post("/doctor/signup",verifyEmail, verifyPhone, verifyDocAccount, doctors
 router.post("/doctor/login",doctorsController.doctorlogin);
 router.post("/doctor/importdoctors",doctorsController.importexcel);
 router.put("/doctor/update",verifyWebToken, doctorsController.updatedoctor);
-router.get("/doctor/getall",verifyWebToken, doctorsController.getAllDoctors);
+router.get("/doctor/getall",verifyWebToken, ((req, res, next)=>{req.type = "USER"; next()}),doctorsController.getAllDoctors);
 router.get("/doctor/getdoctor/:id",verifyWebToken, doctorsController.getDoctorById);
 router.post("/doctor/postUpload",verifyWebToken, doctorsController.postUpload);
 router.get("/doctor/getdoctorsposts",verifyWebToken, doctorsController.getdoctorsPosts);
