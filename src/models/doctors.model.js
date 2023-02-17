@@ -76,6 +76,9 @@ const doctorschema = new mongoose.Schema({
     },
     mmc_certificate:{
         type : String,
+    },
+    state: {
+        type : String,
     }
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
