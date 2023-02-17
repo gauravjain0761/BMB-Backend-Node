@@ -19,6 +19,7 @@ router.post("/admin/login", adminController.adminlogin);
 router.get("/admin/getdoctors", verifyWebToken, doctorsController.getAllDoctors);
 router.put("/admin/approvedoctor",verifyWebToken, doctorsController.approvedoctor);
 router.get("/admin/getdoctor/:id",verifyWebToken, doctorsController.getDoctorById);
+router.delete("/admin/remove_doctor/:id",verifyWebToken, doctorsController.removedocotraccount);
 
 //============================= Events ==========================//
 router.post("/admin/events/add",verifyWebToken, eventsController.addEvent);

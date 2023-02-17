@@ -174,6 +174,24 @@ exports.updatedoctor = async (req, res) => {
   }
 }
 
+//============================= Remove Doctor ==========================//
+exports.removedocotraccount = async (req, res) =>{
+ try{
+  let authUser = req.userData; docId = req.params.id;
+  if(authUser.account_type === "ADMIN"){
+    await doctorsModel.deleteOne({_id: docId}).then((docs)=>{
+       successResponse(200, "Doctors account has been removed successfully", {}, res)
+    }).catch((err)=>{
+      errorResponse(422, err.message, res);
+    })
+  }else {
+    errorResponse(401, "Unauthorized user", res);
+  }
+ }catch(err){
+  errorResponse(500, err.message, res);
+ }
+}
+
 //============================= Approve Doctor==========================//
 exports.approvedoctor = async (req, res) => {
   let user = req.userData;
