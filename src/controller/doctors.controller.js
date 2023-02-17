@@ -148,6 +148,7 @@ exports.updatedoctor = async (req, res) => {
         }
       });
     }
+    updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
     updatedData.first_name = body.first_name ? body.first_name : user?.first_name;
     updatedData.last_name = body.last_name ? body.last_name : user?.last_name;
     updatedData.middle_name = body.middle_name ? body.middle_name : user?.middle_name;
