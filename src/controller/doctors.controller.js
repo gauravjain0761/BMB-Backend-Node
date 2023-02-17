@@ -230,6 +230,7 @@ exports.approvedoctor = async (req, res) => {
       updatedData.reg_number = body.reg_number;
       updatedData.dob = body.dob;
       updatedData.marriage_date = body.marriage_date;
+      updatedData.state = body.state;
       updatedData.blood_group = body.blood_group;
       updatedData.isApproved = body.isApproved.toUpperCase()
       if (body.image && body.image != user?.image) {
