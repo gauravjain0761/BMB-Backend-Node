@@ -198,8 +198,44 @@ exports.approvedoctor = async (req, res) => {
   let user = req.userData;
   try {
     if (user.account_type == "ADMIN") {
-      let { doctorId, isApproved } = req.body;
-      await doctorsModel.findByIdAndUpdate({ _id: doctorId }, { $set: { isApproved: isApproved.toUpperCase() } }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
+      let body = req.body;     let updatedData = {};
+      if (body.email && body.email != "") {
+        await doctorsModel.findOne({ email: body.email }).select("_id").then((doc) => {
+          if (doc != null) {
+            if (doc._id.toString() === body.doctorId.toString()) {
+              updatedData.email = body.email;
+            } else {
+              errorResponse(422, "Email is already associated with an account.", res);
+            }
+          }
+        });
+      }
+      if (body.contact_number && body.contact_number != "") {
+        await doctorsModel.findOne({ contact_number: body.contact_number }).select("_id").then((doc) => {
+          if (doc != null) {
+            if (doc._id.toString() === body.doctorId.toString()) {
+              updatedData.contact_number = body.contact_number;
+            } else {
+              errorResponse(422, "Contact number is already associated with an account.", res);
+            }
+          }
+        });
+      }
+      updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
+      updatedData.first_name = body.first_name;
+      updatedData.last_name = body.last_name;
+      updatedData.middle_name = body.middle_name;
+      updatedData.qualification = body.qualification;
+      updatedData.speciality = body.speciality; 
+      updatedData.reg_number = body.reg_number;
+      updatedData.dob = body.dob;
+      updatedData.blood_group = body.blood_group;
+      updatedData.isApproved = body.isApproved.toUpperCase()
+      if (body.image && body.image != user?.image) {
+        existedImageremove(user.image);
+        updatedData.image = body.image ? body.image : user?.image;
+      }
+      await doctorsModel.findByIdAndUpdate({ _id: body.doctorId }, { $set: updatedData }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {
       errorResponse(401, "Authentication failed", res);
     }
