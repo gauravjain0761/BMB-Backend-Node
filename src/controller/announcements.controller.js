@@ -7,13 +7,15 @@ exports.createannouncement = async (req, res) => {
     let user = req.userData;
     try {
         if (user.account_type == "ADMIN") {
-            let { title, date, link, content, image } = req.body;
+            let { title, date, link, content, image, city, state } = req.body;
             let data = {};
-            data.title = title,
-                data.date = date,
-                data.link = link,
-                data.content = content,
-                data.image = image;
+            data.title = title;
+            data.date = date;
+            data.link = link;
+            data.content = content;
+            data.image = image;
+            data.city = city;
+            data.state = state;
             data.isActive = false;
             await announcementModel(data).save().then((docs) => {
                 successResponse(201, "Announcement saved successfully", docs, res)
@@ -31,11 +33,14 @@ exports.createannouncement = async (req, res) => {
 
 exports.getAllAnnouncements = async (req, res) => {
     try {
+        
         let page = req.query.page ? parseInt(req.query.page) : 1;
         let limit = req.query.limit ? parseInt(req.query.limit) : 10;
         let skip = page > 1 ? (page - 1) * limit : 0;
         let total = await announcementModel.countDocuments({});
-        await announcementModel.find({ }).sort({ _id: -1 }).skip(skip).limit(limit).then(docs => {
+        let filter= {};
+        if(req.type){filter.isActive = true;}
+        await announcementModel.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).then(docs => {
             res.status(200).json({
                 message: "Announcement retrieved successfully",
                 status: true,
@@ -105,12 +110,12 @@ exports.removeAnnouncement = async (req, res) => {
 
 }
 
-exports.getAnnouncementById = async (req, res) =>{
-    try{
+exports.getAnnouncementById = async (req, res) => {
+    try {
         let Id = req.params.id;
-        await announcementModel.findOne({_id: Id}).then(docs => 
-            successResponse(200, "Announcement has been retrieved successfully", docs,res));
-    }catch (error) {
+        await announcementModel.findOne({ _id: Id }).then(docs =>
+            successResponse(200, "Announcement has been retrieved successfully", docs, res));
+    } catch (error) {
         errorResponse(500, error.message, res);
     }
 }

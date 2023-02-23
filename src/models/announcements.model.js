@@ -17,7 +17,13 @@ const announcementSchema = new mongoose.Schema({
     },
     image: {
         type: String,
+    }, 
+    city: {
+        type: String,
     },
+    state: {
+        type: String,
+    }, 
     isActive: {
         type: Boolean,
         required: true,

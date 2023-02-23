@@ -19,7 +19,7 @@ router.post("/doctor/postUpload",verifyWebToken, doctorsController.postUpload);
 router.get("/doctor/getdoctorsposts",verifyWebToken, doctorsController.getdoctorsPosts);
 
 //============================= Announcement ==========================//
-router.get("/announcement/getall",announcementController.getAllAnnouncements );
+router.get("/announcement/getall",((req, res, next)=> {req.type = "USER"; next()}),announcementController.getAllAnnouncements );
 
 //============================= Events ==========================//
 router.get("/events/getall",verifyWebToken, eventsController.getEvents);
