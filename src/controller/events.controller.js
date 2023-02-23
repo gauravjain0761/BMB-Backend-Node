@@ -36,8 +36,10 @@ exports.getEvents = async (req, res) => {
         let page = req.query.page ? parseInt(req.query.page) : 1;
         let limit = req.query.limit ? parseInt(req.query.limit) : 10;
         let skip = page > 1 ? (page - 1) * limit : 0;
-        let total = await eventsModel.countDocuments({});
-        await eventsModel.find({isActive: true}).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
+        let filter= {};
+        if(req.type){filter.isActive = true}
+        let total = await eventsModel.countDocuments(filter);
+        await eventsModel.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
             res.status(200).json({
                 message: "Event has retrieved successfully.",
                 status: true,

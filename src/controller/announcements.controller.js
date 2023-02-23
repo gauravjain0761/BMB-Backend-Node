@@ -20,7 +20,6 @@ exports.createannouncement = async (req, res) => {
             await announcementModel(data).save().then((docs) => {
                 successResponse(201, "Announcement saved successfully", docs, res)
             }).catch(error => {
-                console.log('error', error);
                 errorResponse(422, error.message, res);
             })
         } else {
@@ -33,13 +32,12 @@ exports.createannouncement = async (req, res) => {
 
 exports.getAllAnnouncements = async (req, res) => {
     try {
-        
         let page = req.query.page ? parseInt(req.query.page) : 1;
         let limit = req.query.limit ? parseInt(req.query.limit) : 10;
         let skip = page > 1 ? (page - 1) * limit : 0;
-        let total = await announcementModel.countDocuments({});
         let filter= {};
-        if(req.type){filter.isActive = true;}
+        if(req.type){filter.isActive = true}
+        let total = await announcementModel.countDocuments(filter);
         await announcementModel.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).then(docs => {
             res.status(200).json({
                 message: "Announcement retrieved successfully",

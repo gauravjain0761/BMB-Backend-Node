@@ -22,7 +22,7 @@ router.get("/doctor/getdoctorsposts",verifyWebToken, doctorsController.getdoctor
 router.get("/announcement/getall",((req, res, next)=> {req.type = "USER"; next()}),announcementController.getAllAnnouncements );
 
 //============================= Events ==========================//
-router.get("/events/getall",verifyWebToken, eventsController.getEvents);
+router.get("/events/getall",((req, res, next)=> {req.type = "USER"; next()}),verifyWebToken, eventsController.getEvents);
 router.get("/events/:id",verifyWebToken, eventsController.getEventById);
 
 //============================= Registration ==========================//
