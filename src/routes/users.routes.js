@@ -26,8 +26,8 @@ router.get("/announcement/getall",((req, res, next)=> {req.type = "USER"; next()
 router.get("/events/getall",((req, res, next)=> {req.type = "USER"; next()}),verifyWebToken, eventsController.getEvents);
 router.get("/events/:id",verifyWebToken, eventsController.getEventById);
 
-//============================= Sponsers ==========================//
-router.get("/sponser/getall",((req, res, next)=> {req.type = "USER"; next()}),verifyWebToken, sponsorsController.getSponsers);
+//============================= Sponsors ==========================//
+router.get("/sponsor/getall",((req, res, next)=> {req.type = "USER"; next()}),verifyWebToken, sponsorsController.getSponsers);
 
 //============================= Registration ==========================//
 router.post("/eventregister",verifyWebToken,registrationController.createRegistration);
