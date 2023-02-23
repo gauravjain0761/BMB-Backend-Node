@@ -27,8 +27,10 @@ exports.getSponsers = async (req, res) => {
         let page = req.query.page ? parseInt(req.query.page) : 1;
         let limit = req.query.limit ? parseInt(req.query.limit) : 10;
         let skip = page > 1 ? (page - 1) * limit : 0;
-        let total = await sponsersModel.countDocuments({});
-        await sponsersModel.find({ }).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
+        let filter= {};
+        if(req.type){filter.isActive = true}
+        let total = await sponsersModel.countDocuments(filter);
+        await sponsersModel.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
             res.status(200).json({
                 message: "Sponsers has retrieved successfully.",
                 status:true,

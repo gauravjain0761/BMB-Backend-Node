@@ -2,6 +2,7 @@ const router = require("express").Router();
 const doctorsController = require("../controller/doctors.controller");
 const announcementController = require("../controller/announcements.controller");
 const eventsController = require("../controller/events.controller");
+const sponsorsController = require("../controller/sponsers.controller");
 const registrationController = require("../controller/registration.controller");
 const {verifyEmail,verifyPhone, verifyDocAccount} = require("../middleware/validation");
 const  UploadFileController = require("../controller/uploadImage.controller");
@@ -24,6 +25,9 @@ router.get("/announcement/getall",((req, res, next)=> {req.type = "USER"; next()
 //============================= Events ==========================//
 router.get("/events/getall",((req, res, next)=> {req.type = "USER"; next()}),verifyWebToken, eventsController.getEvents);
 router.get("/events/:id",verifyWebToken, eventsController.getEventById);
+
+//============================= Sponsers ==========================//
+router.get("/sponser/getall",((req, res, next)=> {req.type = "USER"; next()}),verifyWebToken, sponsorsController.getSponsers);
 
 //============================= Registration ==========================//
 router.post("/eventregister",verifyWebToken,registrationController.createRegistration);
