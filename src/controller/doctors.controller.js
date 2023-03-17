@@ -23,7 +23,7 @@ function generateId(value) {
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, password, contact_number, qualification, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image } = req.body;
+    let { first_name, middle_name, last_name, email, password, contact_number, qualification,marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
     let existedRegistration = await doctorsModel.countDocuments({ reg_number: reg_number })
     if (existedRegistration > 0) {
       errorResponse(422, "Registration number already exists", res);
@@ -43,6 +43,8 @@ exports.register = async (req, res) => {
         blood_group: blood_group,
         account_type: "DOCTOR",
         image: image ? image : "",
+        state: state,
+        marriage_date: marriage_date,
         degree_certificate: degree_certificate ? degree_certificate : "",
         mmc_certificate: mmc_certificate ? mmc_certificate : ""
       }
