@@ -12,7 +12,7 @@ exports.UploadFile = async (req, res) => {
   }
   if (file.size > 20000) {
     let extNames = file.originalname.split(/\.(?=[^\.]+$)/);
-    if (["jpg", "jpeg", "png", "svg", "pdf"].includes(extNames[1].toLowerCase())) {
+    if (["jpg", "jpeg", "png", "svg", "pdf", "webp"].includes(extNames[1].toLowerCase())) {
       var fileName = `image_${Date.now().toString()}.${extNames[1]}`;
       switch (type.toUpperCase()) {
         case "ANNOUNCEMENT":
