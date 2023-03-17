@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const announcementModel = require('../models/announcements.model');
 const { successResponse, errorResponse } = require('../helpers/response');
+const { verifyKey } = require("../helpers/verifyKey")
 
 
 exports.createannouncement = async (req, res) => {
@@ -16,7 +17,7 @@ exports.createannouncement = async (req, res) => {
             data.image = image;
             data.city = city;
             data.state = state;
-            data.isActive = false;
+            data.isActive = true;
             await announcementModel(data).save().then((docs) => {
                 successResponse(201, "Announcement saved successfully", docs, res)
             }).catch(error => {
@@ -56,25 +57,7 @@ exports.updateAnnouncement = async (req, res) => {
     let Id = req.params.id;
     try {
         if (user.account_type == "ADMIN") {
-            let updatedData = {};
-            if (req.body.title && req.body.title != "") {
-                updatedData.title = req.body.title;
-            }
-            if (req.body.isActive && req.body.isActive != "") {
-                updatedData.isActive = req.body.isActive;
-            }
-            if (req.body.link && req.body.link != "") {
-                updatedData.link = req.body.link;
-            }
-            if (req.body.date && req.body.date != "") {
-                updatedData.date = req.body.date;
-            }
-            if (req.body.image && req.body.image != "") {
-                updatedData.image = req.body.image;
-            }
-            if (req.body.content && req.body.content != "") {
-                updatedData.content = req.body.content;
-            }
+           let updatedData = await verifyKey(req.body);
             await announcementModel.findOneAndUpdate({ _id: Id }, { $set: updatedData }).then((docs) => {
                 successResponse(200, "Announcement updated successfully", {}, res);
             }).catch(error => errorResponse(422, error.message, res)
@@ -86,7 +69,6 @@ exports.updateAnnouncement = async (req, res) => {
     } catch (error) {
         console.log('error updating announcement', error);
     }
-
 }
 
 exports.removeAnnouncement = async (req, res) => {

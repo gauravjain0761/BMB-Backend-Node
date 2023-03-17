@@ -18,6 +18,8 @@ router.get("/doctor/getall",verifyWebToken, ((req, res, next)=>{req.type = "USER
 router.get("/doctor/getdoctor/:id",verifyWebToken, doctorsController.getDoctorById);
 router.post("/doctor/postUpload",verifyWebToken, doctorsController.postUpload);
 router.get("/doctor/getdoctorsposts",verifyWebToken, doctorsController.getdoctorsPosts);
+router.post("/doctor/send_otp", verifyPhone, doctorsController.send_otp)
+router.post("/doctor/verify_otp", verifyPhone, doctorsController.verify_otp)
 
 //============================= Announcement ==========================//
 router.get("/announcement/getall",((req, res, next)=> {req.type = "USER"; next()}),announcementController.getAllAnnouncements );

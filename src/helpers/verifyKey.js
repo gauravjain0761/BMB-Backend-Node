@@ -4,7 +4,7 @@ exports.verifyKey = async (data) => {
         if (data[`${key}`] != "") {
             obj[`${key}`] = data[key];
         }
-    }
+    } 
     // if(data.isActive != null){
     //    obj.isActive = data.isActive;
     // }

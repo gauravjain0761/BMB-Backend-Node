@@ -78,6 +78,9 @@ const doctorschema = new mongoose.Schema({
     },
     state: {
         type : String,
+    },
+    otp :{
+        type: Number
     }
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }

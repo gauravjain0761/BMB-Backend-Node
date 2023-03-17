@@ -23,7 +23,7 @@ function generateId(value) {
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, password, contact_number, qualification,marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
+    let { first_name, middle_name, last_name, email, password, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
     let existedRegistration = await doctorsModel.countDocuments({ reg_number: reg_number })
     if (existedRegistration > 0) {
       errorResponse(422, "Registration number already exists", res);
@@ -79,6 +79,8 @@ exports.doctorlogin = async (req, res) => {
         } else {
           if (bcrypt.compareSync(password, docs["_doc"].password) === true) {
             docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
+            delete docs["_doc"].otp;
+            delete docs["_doc"].password
             successResponse(200, "Login successfully.", docs, res);
           } else {
             errorResponse(422, "Password does not matched.", res)
@@ -94,11 +96,52 @@ exports.doctorlogin = async (req, res) => {
   }
 }
 
+//============================= Send_OTP ==========================//
+exports.send_otp = async (req, res) => {
+  try {
+    await doctorsModel.findOne({ contact_number: req.body.contact_number }).then(async (doc) => {
+      if (!doc) {
+        errorResponse(422, "The Number is not registerd.", res)
+      } else {
+        let otp = 1234;
+        await doctorsModel.findByIdAndUpdate({ _id: doc['_doc']._id }, { $set: { otp: otp } }).then((result) => {
+          successResponse(200, "An OTP hase been sent  your registered mobile number.", {}, res)
+        }).catch((err) => { errorResponse(422, err.message, res) })
+      }
+    }).catch((err) => { errorResponse(422, err.message, res) })
+  } catch (err) {
+    errorResponse(500, err.message, res)
+  }
+}
+
+//============================= verify_otp ==========================//
+exports.verify_otp = async (req, res) => {
+  try {
+    console.log('req.body---->', req.body);
+    let { contact_number, otp } = req.body;
+    await doctorsModel.findOne({ contact_number: req.body.contact_number }).then(async (doc) => {
+      if (!doc) {
+        errorResponse(422, "The Number is not registerd.", res)
+      } else {
+        if (parseInt(doc.otp) === parseInt(otp)) {
+          doc['_doc'].auth_token = `Bearer ${generateWebToken(doc["_doc"]._id)}`;
+          delete doc["_doc"].otp;
+          delete doc["_doc"].password;
+          successResponse(200, "Login successfully.", doc, res);
+        }
+        else { errorResponse(406, "Invalid OTP!", res) }
+      }
+    }).catch((err) => { errorResponse(422, err.message, res) })
+  } catch (err) {
+    errorResponse(500, err.message, res)
+  }
+}
+
 //============================= Get All Doctor ==========================//
 exports.getAllDoctors = async (req, res) => {
   try {
     let filter = {}
-    if(req.type && req.type === "USER"){
+    if (req.type && req.type === "USER") {
       filter.isApproved = "APPROVED"
     }
     await doctorsModel.find(filter).sort({ _id: -1 })
@@ -151,7 +194,7 @@ exports.updatedoctor = async (req, res) => {
       });
     }
     updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
-    updatedData.first_name = body.first_name ? body.first_name : user?.first_name;
+      updatedData.first_name = body.first_name ? body.first_name : user?.first_name;
     updatedData.last_name = body.last_name ? body.last_name : user?.last_name;
     updatedData.middle_name = body.middle_name ? body.middle_name : user?.middle_name;
     updatedData.qualification = body.qualification ? body.qualification : user?.qualification;
@@ -178,21 +221,21 @@ exports.updatedoctor = async (req, res) => {
 }
 
 //============================= Remove Doctor ==========================//
-exports.removedocotraccount = async (req, res) =>{
- try{
-  let authUser = req.userData; docId = req.params.id;
-  if(authUser.account_type === "ADMIN"){
-    await doctorsModel.deleteOne({_id: docId}).then((docs)=>{
-       successResponse(200, "Doctors account has been removed successfully", {}, res)
-    }).catch((err)=>{
-      errorResponse(422, err.message, res);
-    })
-  }else {
-    errorResponse(401, "Unauthorized user", res);
+exports.removedocotraccount = async (req, res) => {
+  try {
+    let authUser = req.userData; docId = req.params.id;
+    if (authUser.account_type === "ADMIN") {
+      await doctorsModel.deleteOne({ _id: docId }).then((docs) => {
+        successResponse(200, "Doctors account has been removed successfully", {}, res)
+      }).catch((err) => {
+        errorResponse(422, err.message, res);
+      })
+    } else {
+      errorResponse(401, "Unauthorized user", res);
+    }
+  } catch (err) {
+    errorResponse(500, err.message, res);
   }
- }catch(err){
-  errorResponse(500, err.message, res);
- }
 }
 
 //============================= Approve Doctor==========================//
@@ -200,7 +243,7 @@ exports.approvedoctor = async (req, res) => {
   let user = req.userData;
   try {
     if (user.account_type == "ADMIN") {
-      let body = req.body;     let updatedData = {};
+      let body = req.body; let updatedData = {};
       if (body.email && body.email != "") {
         await doctorsModel.findOne({ email: body.email }).select("_id").then((doc) => {
           if (doc != null) {
@@ -224,11 +267,11 @@ exports.approvedoctor = async (req, res) => {
         });
       }
       updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
-      updatedData.first_name = body.first_name;
+        updatedData.first_name = body.first_name;
       updatedData.last_name = body.last_name;
       updatedData.middle_name = body.middle_name;
       updatedData.qualification = body.qualification;
-      updatedData.speciality = body.speciality; 
+      updatedData.speciality = body.speciality;
       updatedData.reg_number = body.reg_number;
       updatedData.dob = body.dob;
       updatedData.marriage_date = body.marriage_date;
@@ -312,7 +355,7 @@ exports.getdoctorsPosts = async (req, res) => {
   try {
     let user = req.userData;
     if (user.account_type === "DOCTOR") {
-      await userPostsModel.find({user: user._id, isActive: true}).then((docs) => {
+      await userPostsModel.find({ user: user._id, isActive: true }).then((docs) => {
         successResponse(201, "Post Upload Successfully", docs, res);
       }).catch(err => { errorResponse(422, err.message, res) });
     } else {
