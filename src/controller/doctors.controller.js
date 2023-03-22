@@ -137,6 +137,34 @@ exports.verify_otp = async (req, res) => {
   }
 }
 
+//============================= Forget password ==========================//
+exports.forget_password = async (req, res) => {
+  try {
+    await doctorsModel.findOne({ $or: [{ contact_number: req.body.contact_number }, { email: req.body.email }] }).then(async (docs) => {
+      if (!docs) {
+        errorResponse(422, "Account not registered.", res)
+      } else {
+        console.log('docs', docs);
+        let otp = 1234;
+        await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { otp: otp } }).then((result) => {
+          successResponse(200, "An OTP hase been sent  your registered mobile number.", {}, res)
+        }).catch((err) => { errorResponse(422, err.message, res) })
+      }
+    }).catch((err) => { errorResponse(422, err.message, res) })
+  } catch (err) {
+    errorResponse(500, err.message, res)
+  }
+}
+
+//============================= Forget password ==========================//
+exports.otp_match = async (req, res) => {
+  try {
+    console.log('forget_password_match api called');
+  } catch (err) {
+    errorResponse(500, err.message, res)
+  }
+}
+
 //============================= Get All Doctor ==========================//
 exports.getAllDoctors = async (req, res) => {
   try {

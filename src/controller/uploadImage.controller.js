@@ -10,7 +10,8 @@ exports.UploadFile = async (req, res) => {
       code: 406,
     });
   }
-  if (file.size > 20000) {
+  console.log("file------>", file);
+  // if (file.size > 20000) {
     let extNames = file.originalname.split(/\.(?=[^\.]+$)/);
     if (["jpg", "jpeg", "png", "svg", "pdf", "webp"].includes(extNames[1].toLowerCase())) {
       var fileName = `image_${Date.now().toString()}.${extNames[1]}`;
@@ -38,12 +39,12 @@ exports.UploadFile = async (req, res) => {
         case "SPONSOR":
         case "EVENT":  
         case "CERTIFICATE":
-          // await sharp(file.buffer)
-          //   .resize(446, 446)
-          //   .toBuffer()
-          //   .then((data) => {
-          // file["buffer"] = data;
-          // });
+          await sharp(file.buffer)
+            // .resize(446, 446)
+            .toBuffer()
+            .then((data) => {
+          file["buffer"] = data;
+          });
           file["fileName"] = fileName;
           file["type"] = type;
           break;
@@ -59,12 +60,12 @@ exports.UploadFile = async (req, res) => {
         message: "File format is not supported",
         code: 400,
       });
-  } else {
-    return res.status(406).send({
-      message: "File size is too short",
-      code: 406,
-    });
-  }
+  // } else {
+  //   return res.status(406).send({
+  //     message: "File size is too short",
+  //     code: 406,
+  //   });
+  // }
 };
 
 //=============== Remove Image ===================
