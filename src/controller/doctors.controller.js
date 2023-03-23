@@ -10,6 +10,7 @@ const { generateWebToken, } = require('../helpers/jwt');
 const axios = require('axios');
 const { existedImageremove } = require("../helpers/imageUpload");
 const { emailNotify } = require("../helpers/emailNotify");
+const { query } = require('express');
 
 function generateId(value) {
   let num = "";
@@ -182,12 +183,20 @@ exports.reset_password = async (req, res) => {
 //============================= Get All Doctor ==========================//
 exports.getAllDoctors = async (req, res) => {
   try {
-    let filter = {}
+    let filter = {}; qry = req.query ? req.query.q : ""
     if (req.type && req.type === "USER") {
       filter.isApproved = "APPROVED"
     }
+    if (qry && qry != "") {
+      filter.$or = [
+        { title: { $regex: qry, $options: 'i' } },
+        { first_name: { $regex: qry, $options: 'i' } },
+        { middle_name: { $regex: qry, $options: 'i' } },
+        { last_name: { $regex: qry, $options: 'i' } },
+      ]
+    }
     await doctorsModel.find(filter).sort({ _id: -1 })
-      .select("-password -created_at -updated_at -__v -account_type -blood_group")
+      .select("-password -created_at -updated_at -__v -account_type -otp")
       .then(docs => { successResponse(200, "Doctos retrieved successfully.", docs, res) })
       .catch(err => { console.log('err', err) });
   } catch (error) {
@@ -199,6 +208,7 @@ exports.getAllDoctors = async (req, res) => {
 exports.getDoctorById = async (req, res) => {
   try {
     let docId = req.params.id;
+    console.log('docId---->', docId);
     await doctorsModel.findOne({ _id: docId }).select("-password").then(docs => {
       successResponse(200, "Doctos retrieved successfully.", docs, res)
     }).catch(err => { console.log('err', err) });
