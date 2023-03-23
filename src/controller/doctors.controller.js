@@ -209,8 +209,29 @@ exports.getDoctorById = async (req, res) => {
   try {
     let docId = req.params.id;
     console.log('docId---->', docId);
-    await doctorsModel.findOne({ _id: docId }).select("-password").then(docs => {
-      successResponse(200, "Doctos retrieved successfully.", docs, res)
+    await doctorsModel.aggregate([
+      {
+        $match:
+          { _id: mongoose.Types.ObjectId(docId) }
+      },
+      {
+        $lookup: {
+          from: "certificates",
+          let: { doc: "$_id" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$docId", "$$doc"] } } },
+            { $project: { url: 1 } }
+          ],
+          as: "certificates"
+        }
+      },
+      {
+        $project: {
+          password: 0
+        }
+      }
+    ]).then(docs => {
+      successResponse(200, "Doctos retrieved successfully.", docs[0], res)
     }).catch(err => { console.log('err', err) });
   } catch (error) {
     console.log('error--->', error);
@@ -330,10 +351,6 @@ exports.approvedoctor = async (req, res) => {
       updatedData.state = body.state;
       updatedData.blood_group = body.blood_group;
       updatedData.isApproved = body.isApproved.toUpperCase()
-      if (body.image && body.image != user?.image) {
-        existedImageremove(user.image);
-        updatedData.image = body.image ? body.image : user?.image;
-      }
       await doctorsModel.findByIdAndUpdate({ _id: body.doctorId }, { $set: updatedData }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {
       errorResponse(401, "Authentication failed", res);
