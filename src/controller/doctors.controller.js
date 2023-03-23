@@ -74,8 +74,8 @@ exports.doctorlogin = async (req, res) => {
       if (!docs) {
         errorResponse(422, "Account does not exists.", res);
       } else {
-        if (!docs.isApproved) {
-          errorResponse(422, "Your Account is not verified. Please contact to admin", res)
+        if (["PENDING", "REJECTED"].includes(docs.isApproved)) {
+          errorResponse(422, "Your Account is not verified. Please contact to support team", res)
         } else {
           if (bcrypt.compareSync(password, docs["_doc"].password) === true) {
             docs['_doc'].auth_token = `Bearer ${generateWebToken(docs._id)}`
