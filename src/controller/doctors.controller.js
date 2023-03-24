@@ -150,7 +150,6 @@ exports.forget_password = async (req, res) => {
         errorResponse(422, "Account not registered.", res)
       } else {
         let otp = Math.random().toString().slice(-4);
-        // let otp = 1234;
         await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { otp: otp } }).then((result) => {
           emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
           successResponse(200, "An OTP hase been sent to your registered email and mobile number.", {}, res)

@@ -7,7 +7,9 @@ let s3bucket = new AWS.S3({
   secretAccessKey: process.env.IAM_USER_SECRET,
 });
 
-exports.Imageupload = async (file, res) => {
+exports.Imageupload = async (files, res) => {
+  
+  for (let file of files) {
   s3bucket.createBucket(function () {
     var params = {
       Bucket: `bmb.${file.type}`,
@@ -16,18 +18,20 @@ exports.Imageupload = async (file, res) => {
       ACL: "public-read",
       ContentType: `${file.mimetype}`,
     };
+    var ResponseData = [];
     s3bucket.upload(params, async function (err, data) {
       if (err) {
-        res.status(500).json({
-          message: "somthing went wrong",
-          status: false,
-          error: err,
-        });
+        errorResponse(500, "somthing went wrong", res)
       } else {
-        return successResponse(201, "Image uploaded successfully.",data, res);
+        ResponseData.push(data);
+        if (ResponseData.length == files.length) {
+          console.log('ResponseData', ResponseData);
+          return successResponse(200, "Image uploaded successfully.",ResponseData, res);
+        }
       }
     });
-  });
+  }); 
+  }
 };
 
 exports.removeImage = async (path, res) => {

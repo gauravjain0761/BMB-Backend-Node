@@ -39,7 +39,7 @@ router.post("/eventregister",verifyWebToken,registrationController.createRegistr
 // router.get("/events/:id",verifyWebToken, eventsController.getEventById);
 
 //=========================== Image Upload ====================
-router.post("/imageUpload/:type",uploadMiddleware.single("file"),UploadFileController.UploadFile);
-  router.delete("/removefile", UploadFileController.removeFile);
+router.post("/imageUpload/:type",uploadMiddleware.array("file"),UploadFileController.UploadFile);
+router.delete("/removefile", UploadFileController.removeFile);
 
 module.exports = router;
