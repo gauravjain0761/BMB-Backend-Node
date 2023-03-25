@@ -70,8 +70,8 @@ exports.register = async (req, res) => {
 //============================= Doctor Login ==========================//
 exports.doctorlogin = async (req, res) => {
   try {
-    let { email, password } = req.body;
-    await doctorsModel.findOne({ $or: [{ email: email }, { contact_number: email }] }).then((docs) => {
+    let { username, password } = req.body;
+    await doctorsModel.findOne({ $or: [{ email: username }, { contact_number: username }] }).then((docs) => {
       if (!docs) {
         errorResponse(422, "Account does not exists.", res);
       } else {
@@ -100,7 +100,8 @@ exports.doctorlogin = async (req, res) => {
 //============================= Send_OTP ==========================//
 exports.send_otp = async (req, res) => {
   try {
-    await doctorsModel.findOne({ contact_number: req.body.contact_number }).then(async (doc) => {
+    let { username} = req.body;
+    await doctorsModel.findOne({ $or: [{ contact_number: username }, { email: username }] }).then(async (doc) => {
       if (!doc) {
         errorResponse(422, "The Number is not registerd.", res)
       } else {
@@ -118,8 +119,8 @@ exports.send_otp = async (req, res) => {
 //============================= verify_otp ==========================//
 exports.verify_otp = async (req, res) => {
   try {
-    let { contact_number, email, otp } = req.body; type = req.query.type;
-    await doctorsModel.findOne({ $or: [{ contact_number: contact_number }, { email: email }] }).then(async (doc) => {
+    let { username, otp } = req.body; type = req.query.type;
+    await doctorsModel.findOne({ $or: [{ contact_number: username }, { email: username }] }).then(async (doc) => {
       if (!doc) {
         errorResponse(422, "The Number is not registerd.", res)
       } else {
@@ -144,15 +145,15 @@ exports.verify_otp = async (req, res) => {
 //============================= Forget password ==========================//
 exports.forget_password = async (req, res) => {
   try {
-    let { contact_number, email } = req.body;
-    await doctorsModel.findOne({ $or: [{ contact_number: contact_number }, { email: email }] }).then(async (docs) => {
+    let { username } = req.body;
+    await doctorsModel.findOne({ $or: [{ contact_number: username }, { email: username }] }).then(async (docs) => {
       if (!docs) {
         errorResponse(422, "Account not registered.", res)
       } else {
         let otp = Math.random().toString().slice(-4);
         await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { otp: otp } }).then((result) => {
           // emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
-          successResponse(200, "An OTP hase been sent to your registered email and mobile number.", {otp: otp}, res)
+          successResponse(200, "An OTP has been sent to your registered email and mobile number.", {otp: otp}, res)
         }).catch((err) => { errorResponse(422, err.message, res) })
       }
     }).catch((err) => { errorResponse(422, err.message, res) })

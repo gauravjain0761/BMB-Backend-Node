@@ -18,10 +18,10 @@ router.get("/doctor/getall",verifyWebToken, ((req, res, next)=>{req.type = "USER
 router.get("/doctor/getdoctor/:id",verifyWebToken, doctorsController.getDoctorById);
 router.post("/doctor/postUpload",verifyWebToken, doctorsController.postUpload);
 router.get("/doctor/getdoctorsposts",verifyWebToken, doctorsController.getdoctorsPosts);
-router.post("/doctor/send_otp", verifyPhone, doctorsController.send_otp)
+router.post("/doctor/send_otp",  doctorsController.send_otp)
 router.post("/doctor/forget_password",doctorsController.forget_password)
-router.post("/doctor/verify_otp", verifyPhone, doctorsController.verify_otp)
-router.post("/doctor/reset_password", verifyPhone, doctorsController.reset_password)
+router.post("/doctor/verify_otp", doctorsController.verify_otp)
+router.post("/doctor/reset_password", doctorsController.reset_password)
 
 
 //============================= Announcement ==========================//
