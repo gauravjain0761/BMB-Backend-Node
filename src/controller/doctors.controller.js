@@ -151,7 +151,7 @@ exports.forget_password = async (req, res) => {
       } else {
         let otp = Math.random().toString().slice(-4);
         await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { otp: otp } }).then((result) => {
-          emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
+          // emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
           successResponse(200, "An OTP hase been sent to your registered email and mobile number.", {otp: otp}, res)
         }).catch((err) => { errorResponse(422, err.message, res) })
       }
