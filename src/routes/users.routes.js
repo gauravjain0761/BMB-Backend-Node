@@ -44,4 +44,8 @@ router.post("/eventregister",verifyWebToken,registrationController.createRegistr
 router.post("/imageUpload/:type",uploadMiddleware.array("file"),UploadFileController.UploadFile);
 router.delete("/removefile", UploadFileController.removeFile);
 
+//=========================== Payments ====================
+router.post("/make_payment", verifyWebToken, registrationController.makePayment);
+router.post("/verify_payment", registrationController.verifyPayment);
+
 module.exports = router;
