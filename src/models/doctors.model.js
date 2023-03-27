@@ -81,7 +81,9 @@ const doctorschema = new mongoose.Schema({
     },
     otp :{
         type: Number
-    }
+    },
+    web_token: {type: String},
+    app_token: {type: String},
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });

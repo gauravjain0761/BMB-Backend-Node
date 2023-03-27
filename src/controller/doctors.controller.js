@@ -152,7 +152,7 @@ exports.forget_password = async (req, res) => {
       } else {
         let otp = Math.random().toString().slice(-4);
         await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { otp: otp } }).then((result) => {
-          // emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
+          emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
           successResponse(200, "An OTP has been sent to your registered email and mobile number.", {otp: otp}, res)
         }).catch((err) => { errorResponse(422, err.message, res) })
       }
@@ -432,5 +432,21 @@ exports.getdoctorsPosts = async (req, res) => {
     }
   } catch (err) {
     errorResponse(500, err.message, res);
+  }
+}
+
+//==================== Device Token =================
+exports.device_token = async (req, res) => {
+  try {
+      let authUser = req.userData; let body = req.body; update = {};
+      if (authUser.account_type === "DOCTOR") {
+          if (body.type.toUpperCase() === "WEB") { update.web_token = body.token }
+          if (body.type.toUpperCase() === "APP") { update.app_token = body.token }
+          await doctorsModel.findByIdAndUpdate({ _id: authUser._id }, { $set: update })
+              .then((docs) => successResponse(200, "Token has been saved", {}, res))
+              .catch((err) => errorResponse(422, err.message, res))
+      }
+  } catch (err) {
+      errorResponse(500, err.message, res)
   }
 }

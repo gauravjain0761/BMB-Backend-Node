@@ -22,7 +22,8 @@ router.get("/doctor/getdoctorsposts",verifyWebToken, doctorsController.getdoctor
 router.post("/doctor/send_otp",  doctorsController.send_otp)
 router.post("/doctor/forget_password",doctorsController.forget_password)
 router.post("/doctor/verify_otp", doctorsController.verify_otp)
-router.post("/doctor/reset_password", doctorsController.reset_password)
+router.post("/doctor/reset_password", doctorsController.reset_password);
+router.post("/device_token", verifyWebToken, doctorsController.device_token);
 
 
 router.get("/dashboard/", dashboardController.getDashboardData)

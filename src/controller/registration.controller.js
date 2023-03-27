@@ -106,7 +106,6 @@ exports.makePayment = async (req, res) => {
             let orderdata = await registrationModel.findOne({ _id: mongoose.Types.ObjectId(body.reg_id) }).populate({ path: "doctorId", model: "doctors",
              select: ["title", "first_name","last_name", "email", "contact_number"]
              })
-            console.log('orderdata----->', orderdata);
             let option = {
                 amount: orderdata["_doc"].totalAmount * 100,
                 currency: "INR",
