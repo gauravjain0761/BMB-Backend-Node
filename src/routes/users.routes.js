@@ -6,6 +6,7 @@ const sponsorsController = require("../controller/sponsers.controller");
 const registrationController = require("../controller/registration.controller");
 const {verifyEmail,verifyPhone, verifyDocAccount} = require("../middleware/validation");
 const  UploadFileController = require("../controller/uploadImage.controller");
+const dashboardController = require("../controller/dashboard.controller");
 const uploadMiddleware = require("../middleware/upload");
 const { verifyWebToken } = require("../helpers/jwt");
 
@@ -24,6 +25,7 @@ router.post("/doctor/verify_otp", doctorsController.verify_otp)
 router.post("/doctor/reset_password", doctorsController.reset_password)
 
 
+router.get("/dashboard/", dashboardController.getDashboardData)
 //============================= Announcement ==========================//
 router.get("/announcement/getall",((req, res, next)=> {req.type = "USER"; next()}),announcementController.getAllAnnouncements );
 
