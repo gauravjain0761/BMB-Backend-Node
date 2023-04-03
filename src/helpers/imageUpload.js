@@ -8,7 +8,7 @@ let s3bucket = new AWS.S3({
 });
 
 exports.Imageupload = async (files, res) => {
-  
+  var ResponseData = [];
   for (let file of files) {
   s3bucket.createBucket(function () {
     var params = {
@@ -18,13 +18,13 @@ exports.Imageupload = async (files, res) => {
       ACL: "public-read",
       ContentType: `${file.mimetype}`,
     };
-    var ResponseData = [];
+    
     s3bucket.upload(params, async function (err, data) {
       if (err) {
         errorResponse(500, "somthing went wrong", res)
       } else {
         ResponseData.push(data);
-        if (ResponseData.length == files.length) {
+        if (ResponseData.length === files.length) {
           console.log('ResponseData', ResponseData);
           return successResponse(200, "Image uploaded successfully.",ResponseData, res);
         }
