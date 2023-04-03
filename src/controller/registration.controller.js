@@ -132,7 +132,7 @@ exports.makePayment = async (req, res) => {
                                 amount: docs.amount,
                                 name: `${orderdata.doctorId.first_name} ${orderdata.doctorId.last_name}`,
                                 description: "Testing...",
-                                image: "",
+                                image: "https://bmb.fra1.digitaloceanspaces.com/bmb.GALLERY/image_1679916560625.jpeg",
                                 prefill: {
                                     name: `${orderdata.doctorId.first_name} ${orderdata.doctorId.last_name}`,
                                     email: orderdata.doctorId["email"],

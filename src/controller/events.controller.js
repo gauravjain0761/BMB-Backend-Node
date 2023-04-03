@@ -85,7 +85,10 @@ exports.updateEvent = async (req, res) => {
             if (req.body.image && req.body.image != "") {
                 updatedData.image = req.body.image;
             }
-            await eventsModel.findByIdAndUpdate({ _id: eventId }, { $set: updatedData }).then((docs) => { successResponse(200, "Event has been updated successfully", {}, res) }).catch(err => {
+            if (req.body.sponsers && req.body.sponsers != "") {
+                updatedData.sponsers = req.body.sponsers.map(el => {return mongoose.Types.ObjectId(el)});
+            }
+            await eventsModel.findByIdAndUpdate({ _id: eventId }, { $set: updatedData }).then((docs) => { successResponse(200, "Event has been updated successfully", docs, res) }).catch(err => {
                 errorResponse(422, err.message, res);
             })
         } else {
