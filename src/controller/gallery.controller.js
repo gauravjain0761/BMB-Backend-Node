@@ -80,7 +80,7 @@ exports.getGallerybyId = async (req, res) => {
                 }
             }
         ]).then((docs) => {
-            successResponse(200, "successfull", docs, res)
+            successResponse(200, "successfull", docs[0], res)
         }).catch((err) => {
             errorResponse(422, err.message, res)
         })
