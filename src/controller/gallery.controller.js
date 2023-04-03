@@ -125,12 +125,11 @@ exports.updateGallery = async (req, res) => {
                     let arr = []
                     for (let file of body.files) {
                         if (file != "" && !file._id) {
-                            let obj = { url: file, gallery: doc._id, isActive: true }
+                            let obj = { url: file.url, gallery: doc._id, isActive: true }
                             arr.push(obj)
                         }
                     }
-                    console.log('arr---->',arr);
-                    // await galleryFilesModel.insertMany(arr)
+                    await galleryFilesModel.insertMany(arr)
                 }
                 successResponse(200, "updated successfully", {}, res);
                 if (body.files.length > 0) {

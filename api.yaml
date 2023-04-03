@@ -1,3 +1,13 @@
-swagger: "3.0.0"
-info: 
-  title: "BMB API"
+module.exports = {
+  openapi: "3.0.3", // present supported openapi version
+  info: {
+    title: "BMB API", // short title.
+    description: "A simple todos API", //  desc.
+    version: "1.0.0", // version number
+    contact: {
+      name: "Mohit Pandey", // your name
+      email: "mohitp.codetown@gmail.com", // your email
+      url: "https://bmb-admin.vercel.app/", // your website
+    },
+  },
+};
