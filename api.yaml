@@ -5,9 +5,53 @@ module.exports = {
     description: "A simple todos API", //  desc.
     version: "1.0.0", // version number
     contact: {
-      name: "Mohit Pandey", // your name
+      name: "BMB", // your name
       email: "mohitp.codetown@gmail.com", // your email
       url: "https://bmb-admin.vercel.app/", // your website
     },
   },
+  servers: [
+      {
+        url: "https://sea-turtle-app-i54w6.ondigitalocean.app/api/",
+        description: "live server "
+      },
+      {
+        url: "http://localhost:5000/api/",
+        description: "local server"
+      }
+    ],
+    tags: [
+      {
+        name: "Doctor",
+        description: "Doctor routes"
+      }
+    ],
+  paths: {
+    "/admin/getdoctors": {
+      get: {
+        summary: "Returns doctor's list",
+        tags: ["Doctor"],
+        decription: "List of all doctor",
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema:{
+                  type: "object",
+                }
+              }
+            }
+          },
+          400:{
+            description: "User error",
+          },
+          500:{
+            description: "Internal server error",
+          }
+        }
+      }
+    }
+  }
+
 };
