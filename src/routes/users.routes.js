@@ -7,6 +7,7 @@ const registrationController = require("../controller/registration.controller");
 const {verifyEmail,verifyPhone, verifyDocAccount} = require("../middleware/validation");
 const  UploadFileController = require("../controller/uploadImage.controller");
 const dashboardController = require("../controller/dashboard.controller");
+const galleryController = require("../controller/gallery.controller");
 const uploadMiddleware = require("../middleware/upload");
 const { verifyWebToken } = require("../helpers/jwt");
 
@@ -48,5 +49,8 @@ router.delete("/removefile", UploadFileController.removeFile);
 //=========================== Payments ====================
 router.post("/make_payment", verifyWebToken, registrationController.makePayment);
 router.post("/verify_payment", registrationController.verifyPayment);
+
+//=========================== Galllery ====================
+router.get("/gallery/getall", galleryController.getAllGallery);
 
 module.exports = router;

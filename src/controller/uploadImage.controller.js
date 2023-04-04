@@ -42,7 +42,6 @@ exports.UploadFile = async (req, res) => {
           case "SPONSOR":
           case "GALLERY":
           case "EVENT":
-          case "CERTIFICATE":
             await sharp(file.buffer)
               // .resize(446, 446)
               .toBuffer()
@@ -52,6 +51,9 @@ exports.UploadFile = async (req, res) => {
             file["fileName"] = fileName;
             file["type"] = type;
             break;
+            case "CERTIFICATE":  
+            file["fileName"] = fileName;
+            file["type"] = type;
           default:
             break;
         }
