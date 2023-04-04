@@ -39,7 +39,12 @@ exports.getEvents = async (req, res) => {
         let filter= {};
         if(req.type){filter.isActive = true}
         let total = await eventsModel.countDocuments(filter);
-        await eventsModel.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
+        await eventsModel.aggregate([
+            {$match: filter},
+            {$skip: skip},
+            {$limit:  limit},
+            {$addFields: {status: { $cond: { if: { $gt: [ "$date", new Date()] }, then: "UPCOMING", else: "PAST" } }}}
+        ]).sort({ _id: -1 }).then((docs) => {
             res.status(200).json({
                 message: "Event has retrieved successfully.",
                 status: true,
@@ -55,7 +60,24 @@ exports.getEvents = async (req, res) => {
 exports.getEventById = async (req, res) => {
     try {
         let eventId = req.params.id;
-        await eventsModel.findOne({ _id: eventId }).then((docs) => { successResponse(200, "Event retrieved successfully", docs, res) }).catch((error) => { errorResponse(422, error.message, res) })
+        await eventsModel.aggregate([
+              {$match: { _id: mongoose.Types.ObjectId(eventId) }},
+              {
+                $lookup: {
+                    from: "sponsers",
+                    let: { arr: "$sponsers" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $in: ["$_id", "$$arr"] },
+                                isActive: true
+                            }
+                        },
+                    ],
+                    as: "sponsers"
+                }
+            }
+        ]).then((docs) => { successResponse(200, "Event retrieved successfully", docs[0], res) }).catch((error) => { errorResponse(422, error.message, res) })
     } catch (error) {
         console.log("error", error);
     }

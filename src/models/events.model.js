@@ -24,7 +24,7 @@ const eventsSchema = new mongoose.Schema({
     bookingAmount: {
         type: Number,
         required: true
-    },
+    },  
     address: {
         type: String,
         required: true
