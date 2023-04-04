@@ -24,7 +24,7 @@ function generateId(value) {
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, password, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
+    let { first_name, middle_name, last_name, email,address,password, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
     let existedRegistration = await doctorsModel.countDocuments({ reg_number: reg_number })
     if (existedRegistration > 0) {
       errorResponse(422, "Registration number already exists", res);
@@ -44,6 +44,7 @@ exports.register = async (req, res) => {
         blood_group: blood_group,
         account_type: "DOCTOR",
         image: image ? image : "",
+        address: address,
         state: state,
         marriage_date: marriage_date,
         degree_certificate: degree_certificate ? degree_certificate : "",
@@ -100,14 +101,14 @@ exports.doctorlogin = async (req, res) => {
 //============================= Send_OTP ==========================//
 exports.send_otp = async (req, res) => {
   try {
-    let { username} = req.body;
+    let { username } = req.body;
     await doctorsModel.findOne({ $or: [{ contact_number: username }, { email: username }] }).then(async (doc) => {
       if (!doc) {
         errorResponse(422, "The Number is not registerd.", res)
       } else {
         let otp = 1234;
         await doctorsModel.findByIdAndUpdate({ _id: doc['_doc']._id }, { $set: { otp: otp } }).then((result) => {
-          successResponse(200, "An OTP hase been sent to your registered email and mobile number.", {otp:otp}, res)
+          successResponse(200, "An OTP hase been sent to your registered email and mobile number.", { otp: otp }, res)
         }).catch((err) => { errorResponse(422, err.message, res) })
       }
     }).catch((err) => { errorResponse(422, err.message, res) })
@@ -122,7 +123,7 @@ exports.verify_otp = async (req, res) => {
     let { username, otp } = req.body; type = req.query.type;
     await doctorsModel.findOne({ $or: [{ contact_number: username }, { email: username }] }).then(async (doc) => {
       if (!doc) {
-        errorResponse(422, "The Number is not registerd.", res)
+        errorResponse(422, "The username is not registerd.", res)
       } else {
         if (parseInt(doc.otp) === parseInt(otp)) {
           if (type && type.toUpperCase() === "FORGET") {
@@ -150,11 +151,15 @@ exports.forget_password = async (req, res) => {
       if (!docs) {
         errorResponse(422, "Account not registered.", res)
       } else {
-        let otp = Math.random().toString().slice(-4);
-        await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { otp: otp } }).then((result) => {
-          emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
-          successResponse(200, "An OTP has been sent to your registered email and mobile number.", {otp: otp}, res)
-        }).catch((err) => { errorResponse(422, err.message, res) })
+        if (["PENDING", "REJECTED"].includes(docs.isApproved)) {
+          errorResponse(422, "Your Account is not verified. Please contact to support team", res)
+        } else {
+          let otp = Math.random().toString().slice(-4);
+          await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { otp: otp } }).then((result) => {
+            emailNotify({ ...result["_doc"], otp: otp }, "forget_password")
+            successResponse(200, "An OTP has been sent to your registered email and mobile number.", { otp: otp }, res)
+          }).catch((err) => { errorResponse(422, err.message, res) })
+        }
       }
     }).catch((err) => { errorResponse(422, err.message, res) })
   } catch (err) {
@@ -164,8 +169,8 @@ exports.forget_password = async (req, res) => {
 
 exports.reset_password = async (req, res) => {
   try {
-    let { contact_number, email, password } = req.body; obj = {}
-    await doctorsModel.findOne({ $or: [{ contact_number: contact_number }, { email: email }] }).then(async (docs) => {
+    let { username, password } = req.body; obj = {}
+    await doctorsModel.findOne({ $or: [{ contact_number: username }, { email: username }] }).then(async (docs) => {
       if (!docs) {
         errorResponse(422, "Account not registered.", res)
       } else {
@@ -274,6 +279,7 @@ exports.updatedoctor = async (req, res) => {
     updatedData.speciality = body.speciality ? body.speciality : user?.speciality;
     updatedData.reg_number = body.reg_number ? body.reg_number : user?.reg_number;
     updatedData.dob = body.dob ? body.dob : user?.dob;
+    updatedData.address = body.address ? body.address : user?.address;   
     updatedData.blood_group = body.blood_group ? body.blood_group : user?.blood_group;
     if (body.image && body.image != user?.image) {
       existedImageremove(user.image);
@@ -438,15 +444,15 @@ exports.getdoctorsPosts = async (req, res) => {
 //==================== Device Token =================
 exports.device_token = async (req, res) => {
   try {
-      let authUser = req.userData; let body = req.body; update = {};
-      if (authUser.account_type === "DOCTOR") {
-          if (body.type.toUpperCase() === "WEB") { update.web_token = body.token }
-          if (body.type.toUpperCase() === "APP") { update.app_token = body.token }
-          await doctorsModel.findByIdAndUpdate({ _id: authUser._id }, { $set: update })
-              .then((docs) => successResponse(200, "Token has been saved", {}, res))
-              .catch((err) => errorResponse(422, err.message, res))
-      }
+    let authUser = req.userData; let body = req.body; update = {};
+    if (authUser.account_type === "DOCTOR") {
+      if (body.type.toUpperCase() === "WEB") { update.web_token = body.token }
+      if (body.type.toUpperCase() === "APP") { update.app_token = body.token }
+      await doctorsModel.findByIdAndUpdate({ _id: authUser._id }, { $set: update })
+        .then((docs) => successResponse(200, "Token has been saved", {}, res))
+        .catch((err) => errorResponse(422, err.message, res))
+    }
   } catch (err) {
-      errorResponse(500, err.message, res)
+    errorResponse(500, err.message, res)
   }
 }

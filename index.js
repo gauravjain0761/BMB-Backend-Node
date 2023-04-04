@@ -4,10 +4,10 @@ let port = 5000;
 require("dotenv").config();
 const path = require("path");
 
-const swaggerUI =require('swagger-ui-express');
-const YAML = require('yaml')
-const swaggerJsDocs = require("./api.yaml");
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJsDocs));
+// const swaggerUI =require('swagger-ui-express');
+// const YAML = require('yaml')
+// const swaggerJsDocs = require("./api.yaml");
+// app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJsDocs));
 
 
 // ----------- API's Connect ---------

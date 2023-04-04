@@ -76,6 +76,9 @@ const doctorschema = new mongoose.Schema({
     mmc_certificate:{
         type : String,
     },
+    address: {
+        type : String,
+    },
     state: {
         type : String,
     },
