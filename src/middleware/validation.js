@@ -1,14 +1,15 @@
+const ObjectId = require('mongoose').Types.ObjectId;
 const { errorResponse } = require('../helpers/response');
 const doctorsModel = require('../models/doctors.model');
 exports.verifyEmail = (req, res, next) => {
   !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)
-      ? errorResponse(406, "Invalid email!", res)
-      : next();
+    ? errorResponse(406, "Invalid email!", res)
+    : next();
 }
 exports.verifyPhone = (req, res, next) => {
   !/^(\+\d{1,3}[- ]?)?\d{10}$/.test(parseInt(req.body.contact_number))
-      ? errorResponse(406, "Invalid phone number!", res)
-      : next();
+    ? errorResponse(406, "Invalid phone number!", res)
+    : next();
 }
 
 exports.verifyDocAccount = async (req, res, next) => {
@@ -24,11 +25,21 @@ exports.verifyDocAccount = async (req, res, next) => {
   }
 }
 
-exports.verifydmin = (req,res,next) => {
-  let {email} = req.body; 
+exports.verifydmin = (req, res, next) => {
+  let { email } = req.body;
   if (email.match("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")) {
     next();
-  }else{
+  } else {
     errorResponse(406, "Email is not valid.", res);
   }
 }
+
+exports.isValidObjectId = (id) => {
+    if (ObjectId.isValid(id)) {
+      if ((String)(new ObjectId(id)) === id)
+        return true;
+      return false;
+    }
+    return false;
+  }
+  

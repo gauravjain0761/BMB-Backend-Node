@@ -10,6 +10,7 @@ const { generateWebToken, } = require('../helpers/jwt');
 const axios = require('axios');
 const { existedImageremove } = require("../helpers/imageUpload");
 const { emailNotify } = require("../helpers/emailNotify");
+
 const { query } = require('express');
 
 function generateId(value) {
@@ -24,7 +25,7 @@ function generateId(value) {
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email,address,password, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
+    let { first_name, middle_name, last_name, email, address, password, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
     let existedRegistration = await doctorsModel.countDocuments({ reg_number: reg_number })
     if (existedRegistration > 0) {
       errorResponse(422, "Registration number already exists", res);
@@ -279,7 +280,7 @@ exports.updatedoctor = async (req, res) => {
     updatedData.speciality = body.speciality ? body.speciality : user?.speciality;
     updatedData.reg_number = body.reg_number ? body.reg_number : user?.reg_number;
     updatedData.dob = body.dob ? body.dob : user?.dob;
-    updatedData.address = body.address ? body.address : user?.address;   
+    updatedData.address = body.address ? body.address : user?.address;
     updatedData.blood_group = body.blood_group ? body.blood_group : user?.blood_group;
     if (body.image && body.image != user?.image) {
       existedImageremove(user.image);
@@ -456,3 +457,4 @@ exports.device_token = async (req, res) => {
     errorResponse(500, err.message, res)
   }
 }
+

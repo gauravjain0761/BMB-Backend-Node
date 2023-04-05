@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const registrationModel = require("../models/rgistration.model");
 const eventModel = require("../models/events.model");
+const doctorsModel = require("../models/doctors.model");
+const memberShipModel = require("../models/membership.model")
 const PaymentModel = require("../models/payment.model");
+const {isValidObjectId} = require("../middleware/validation");
 const { successResponse, errorResponse } = require("../helpers/response");
 const Razorpay = require('razorpay');
 let KEY_ID = process.env.RAZORPAY_KEY_ID_TEST;
@@ -103,9 +106,10 @@ exports.makePayment = async (req, res) => {
     if (user.account_type === "DOCTOR") {
         if (body.reg_id && mongoose.isValidObjectId(body.reg_id)) {
 
-            let orderdata = await registrationModel.findOne({ _id: mongoose.Types.ObjectId(body.reg_id) }).populate({ path: "doctorId", model: "doctors",
-             select: ["title", "first_name","last_name", "email", "contact_number"]
-             })
+            let orderdata = await registrationModel.findOne({ _id: mongoose.Types.ObjectId(body.reg_id) }).populate({
+                path: "doctorId", model: "doctors",
+                select: ["title", "first_name", "last_name", "email", "contact_number"]
+            })
             let option = {
                 amount: orderdata["_doc"].totalAmount * 100,
                 currency: "INR",
@@ -123,31 +127,31 @@ exports.makePayment = async (req, res) => {
                     payment_status: "PENDING",
                     isActive: true
                 }
-                    await new PaymentModel(obj).save()
-                        .then((docs) => {
-                            var order_info = {
-                                // key: KEY_ID,
-                                order_id: docs.razorpay_order_id,
-                                currency: docs.currency,
-                                amount: docs.amount,
+                await new PaymentModel(obj).save()
+                    .then((docs) => {
+                        var order_info = {
+                            // key: KEY_ID,
+                            order_id: docs.razorpay_order_id,
+                            currency: docs.currency,
+                            amount: docs.amount,
+                            name: `${orderdata.doctorId.first_name} ${orderdata.doctorId.last_name}`,
+                            description: "Testing...",
+                            image: "https://bmb.fra1.digitaloceanspaces.com/bmb.GALLERY/image_1679916560625.jpeg",
+                            prefill: {
                                 name: `${orderdata.doctorId.first_name} ${orderdata.doctorId.last_name}`,
-                                description: "Testing...",
-                                image: "https://bmb.fra1.digitaloceanspaces.com/bmb.GALLERY/image_1679916560625.jpeg",
-                                prefill: {
-                                    name: `${orderdata.doctorId.first_name} ${orderdata.doctorId.last_name}`,
-                                    email: orderdata.doctorId["email"],
-                                    contact: orderdata.doctorId["contact_number"],
-                                },
-                                notes: {
-                                    address: "Razorpay Corporate Office",
-                                },
-                                theme: {
-                                    color: "#3399cc",
-                                },
-                            };
-                            successResponse(200, "Order has been created successfully", { ...docs["_doc"], order_info: order_info }, res)
-             })
-             })
+                                email: orderdata.doctorId["email"],
+                                contact: orderdata.doctorId["contact_number"],
+                            },
+                            notes: {
+                                address: "Razorpay Corporate Office",
+                            },
+                            theme: {
+                                color: "#3399cc",
+                            },
+                        };
+                        successResponse(200, "Order has been created successfully", { ...docs["_doc"], order_info: order_info }, res)
+                    })
+            })
         } else {
             errorResponse(422, "Invalid registration Id", res)
         }
@@ -159,16 +163,125 @@ exports.makePayment = async (req, res) => {
 exports.verifyPayment = async (req, res) => {
     try {
         // let secret_key = "ClrflAfEoO98EuAbqU74n18a";
-           let docs = req.body.payload.payment.entity;
+        let docs = req.body.payload.payment.entity;
         if (docs.status === "captured") {
             let update = {
                 payment_status: "CONFIRMED"
             }
             await PaymentModel.findOneAndUpdate({ razorpay_order_id: docs.order_id }, { $set: update }).then((doc) => {
-                res.status(200).json({status :true});
+                res.status(200).json({ status: true });
             })
         }
     } catch (err) {
         errorResponse(500, err.message, res)
     }
+}
+
+//==================== Member Ship purchase =================
+exports.membership = async (req, res) => {
+    try {
+        let docId = req.params.id;
+        if(isValidObjectId(docId)){
+        await memberShipModel.findOne({ user: docId }).then(async(docs) => {
+            if(docs){
+                if(docs.payment_status === "CONFIRMED"){
+                    successResponse(200, "payment is confirmed", {}, res)
+                }
+                if(docs.payment_status === "PENDING"){
+                    let doctor = await doctorsModel.findOne({ _id: docId })
+                    var order_info = {
+                        // key: KEY_ID,
+                        order_id: docs.razorpay_order_id,
+                        currency: docs.currency,
+                        amount: docs.amount,
+                        name: `${doctor.first_name} ${doctor.last_name}`,
+                        description: "Testing...",
+                        image: "https://bmb.fra1.digitaloceanspaces.com/bmb.GALLERY/image_1679916560625.jpeg",
+                        prefill: {
+                            name: `${doctor.first_name} ${doctor.last_name}`,
+                            email: doctor["email"],
+                            contact: doctor["contact_number"],
+                        },
+                        notes: {
+                            address: "Razorpay Corporate Office",
+                        },
+                        theme: {
+                            color: "#3399cc",
+                        },
+                    };
+                    successResponse(200, "payment is pending", { ...docs["_doc"], order_info: order_info }, res)
+                }
+            }else {                
+                mebership_purchase(docId, res)
+            }
+        }).catch((err) =>{
+            console.log('err-----',err);
+        })
+        
+        } else {
+            errorResponse(422, "invalid ObjectId", res)
+        }
+       
+    } catch (err) {
+        errorResponse(500, err.message, res);
+    }
+}
+
+const mebership_purchase = async (docId, res) => {
+    await doctorsModel.findOne({ _id: docId }).then(async (doctor) => {
+        let membershipdata = await memberShipModel.find().sort({ _id: -1 })
+        function generateId(value) {
+            console.log('value', value);
+            let num = "";
+            let increment = (parseInt(value.split("-")[1]) + 1).toString();
+            for (let i = 0; i <= 4 - increment.length; i++) {
+                num = num + "0";
+            }
+            return num + increment;
+        }
+        let option = {
+            amount: 500 * 100,
+            currency: "INR",
+            receipt: membershipdata.length > 0 ? `order-${generateId(membershipdata[0].receipt)}` : "order-00001",
+            payment_capture: 1
+        }
+
+        instance.orders.create(option).then(async (response) => {
+            let obj = {
+                razorpay_order_id: response.id,
+                user: doctor._id,
+                currency: response.currency,
+                receipt: response.receipt,
+                amount: response.amount,
+                payment_status: "PENDING",
+                isActive: true
+            }
+            await new memberShipModel(obj).save().then((docs) => {
+                console.log(docs);
+                var order_info = {
+                    // key: KEY_ID,
+                    order_id: docs.razorpay_order_id,
+                    currency: docs.currency,
+                    amount: docs.amount,
+                    name: `${doctor.first_name} ${doctor.last_name}`,
+                    description: "Testing...",
+                    image: "https://bmb.fra1.digitaloceanspaces.com/bmb.GALLERY/image_1679916560625.jpeg",
+                    prefill: {
+                        name: `${doctor.first_name} ${doctor.last_name}`,
+                        email: doctor["email"],
+                        contact: doctor["contact_number"],
+                    },
+                    notes: {
+                        address: "Razorpay Corporate Office",
+                    },
+                    theme: {
+                        color: "#3399cc",
+                    },
+                };
+                successResponse(200, "successfully", { ...docs["_doc"], order_info: order_info }, res)
+            })
+        })
+    }).catch((err) => {
+        errorResponse(422, err.message, res)
+    })
 }

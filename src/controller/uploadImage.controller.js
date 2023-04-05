@@ -14,10 +14,9 @@ exports.UploadFile = async (req, res) => {
   }
   for (let file of files) {
     if (file.size > 2000) {
-      // if (file.size > 20000) {
       let extNames = file.originalname.split(/\.(?=[^\.]+$)/);
       if (["jpg", "jpeg", "png", "svg", "pdf", "webp"].includes(extNames[1].toLowerCase())) {
-        var fileName = `image_${Date.now().toString()}.${extNames[1]}`;
+        var fileName = `${extNames[0]}_${Date.now().toString()}.${extNames[1]}`;
         switch (type.toUpperCase()) {
           case "ANNOUNCEMENT":
             await sharp(file.buffer)
