@@ -231,7 +231,6 @@ const mebership_purchase = async (docId, res) => {
     await doctorsModel.findOne({ _id: docId }).then(async (doctor) => {
         let membershipdata = await memberShipModel.find().sort({ _id: -1 })
         function generateId(value) {
-            console.log('value', value);
             let num = "";
             let increment = (parseInt(value.split("-")[1]) + 1).toString();
             for (let i = 0; i <= 4 - increment.length; i++) {

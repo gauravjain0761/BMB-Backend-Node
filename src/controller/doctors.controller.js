@@ -357,6 +357,7 @@ exports.approvedoctor = async (req, res) => {
       updatedData.marriage_date = body.marriage_date;
       updatedData.state = body.state;
       updatedData.blood_group = body.blood_group;
+      updatedData.address = body.address;
       updatedData.isApproved = body.isApproved.toUpperCase()
       await doctorsModel.findByIdAndUpdate({ _id: body.doctorId }, { $set: updatedData }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {
