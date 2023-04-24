@@ -20,3 +20,15 @@ exports.createQuiz = async(req, res)=>{
         errorResponse(500, err.messge, res);
     }
 }
+
+exports.getQuiz = async (req, res) =>{
+  try{
+    await QuizModel.findOne().sort({_id: -1}).then((docs)=>{
+      successResponse(200, "quiz retrieved successfully", docs, res);
+    }).catch((err)=>{
+      errorResponse(422, err.message, res);
+    })
+  }catch(err){
+        errorResponse(500, err.messge, res);
+    }
+}

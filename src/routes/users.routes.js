@@ -8,6 +8,7 @@ const {verifyEmail,verifyPhone, verifyDocAccount} = require("../middleware/valid
 const  UploadFileController = require("../controller/uploadImage.controller");
 const dashboardController = require("../controller/dashboard.controller");
 const galleryController = require("../controller/gallery.controller");
+const quizController = require("../controller/quiz.controller");
 const uploadMiddleware = require("../middleware/upload");
 const { verifyWebToken } = require("../helpers/jwt");
 
@@ -53,6 +54,9 @@ router.post("/verify_payment", registrationController.verifyPayment);
 
 //=========================== Galllery ====================
 router.get("/gallery/getall", galleryController.getAllGallery);
+
+//============================= Quiz ==========================//
+router.get("/quiz/get", verifyWebToken, quizController.getQuiz);
 
 
 module.exports = router;
