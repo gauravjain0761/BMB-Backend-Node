@@ -281,6 +281,7 @@ exports.updatedoctor = async (req, res) => {
     updatedData.reg_number = body.reg_number ? body.reg_number : user?.reg_number;
     updatedData.dob = body.dob ? body.dob : user?.dob;
     updatedData.address = body.address ? body.address : user?.address;
+    updatedData.home_address = body.home_address ? body.home_address : user?.home_address;
     updatedData.blood_group = body.blood_group ? body.blood_group : user?.blood_group;
     if (body.image && body.image != user?.image) {
       existedImageremove(user.image);
@@ -358,6 +359,7 @@ exports.approvedoctor = async (req, res) => {
       updatedData.state = body.state;
       updatedData.blood_group = body.blood_group;
       updatedData.address = body.address;
+      updatedData.home_address = body.home_address;
       updatedData.isApproved = body.isApproved.toUpperCase()
       await doctorsModel.findByIdAndUpdate({ _id: body.doctorId }, { $set: updatedData }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {

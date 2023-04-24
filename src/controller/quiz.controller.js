@@ -21,6 +21,7 @@ exports.createQuiz = async(req, res)=>{
     }
 }
 
+//============================= Get Quiz ==========================//
 exports.getQuiz = async (req, res) =>{
   try{
     await QuizModel.findOne().sort({_id: -1}).then((docs)=>{
