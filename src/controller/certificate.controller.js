@@ -3,17 +3,18 @@ const certifcateModel = require('../models/certificate.model');
 const { successResponse, errorResponse } = require('../helpers/response');
 
 exports.addCertificate = async (req, res) => {
-    console.log('certificate/add api called..');
     let user = req.userData;
     try {
         if (user.account_type == "ADMIN") {
-            let { docId, url } = req.body;
-            let obj = {
-                docId: docId,
-                url: url,
-                isActive: true,
-            }
-            await certifcateModel(obj).save().then((docs) => { successResponse(201, "Certificate has been saved successfully.", docs, res) }).catch(err => errorResponse(422, err.message, res))
+            let { docId, files } = req.body;
+                let obj = {
+                    docId: docId,
+                    files: files,
+                    isActive: true,
+                }
+            await certifcateModel(obj).save()
+            .then((docs) => { successResponse(201, "Certificate has been saved successfully.", docs, res) })
+            .catch(err => errorResponse(422, err.message, res))
         }
         else {
             errorResponse(401, "Authentication failed", res);
