@@ -3,11 +3,8 @@ const mongoose = require("mongoose");
 const doctorsModel = require("./doctors.model");
 
 const ceritficateSchema = new mongoose.Schema({
-    files: [{ type: String, required: true }],
     docId: { type: ObjectId, required: true, ref: doctorsModel },
-    isActive: {
-        type: Boolean,
-    }
+    isActive: {type: Boolean}
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });

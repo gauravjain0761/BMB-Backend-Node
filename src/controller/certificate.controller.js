@@ -1,20 +1,29 @@
 const mongoose = require('mongoose');
 const certifcateModel = require('../models/certificate.model');
 const { successResponse, errorResponse } = require('../helpers/response');
+const certificate_filesModel = require('../models/certificate_files.model');
 
 exports.addCertificate = async (req, res) => {
     let user = req.userData;
     try {
         if (user.account_type == "ADMIN") {
             let { docId, files } = req.body;
-                let obj = {
-                    docId: docId,
-                    files: files,
-                    isActive: true,
-                }
+            let obj = { docId: docId, isActive: true, }
             await certifcateModel(obj).save()
-            .then((docs) => { successResponse(201, "Certificate has been saved successfully.", docs, res) })
-            .catch(err => errorResponse(422, err.message, res))
+                .then(async (doc) => {
+                    if (files.length > 0) {
+                        let arr = []
+                        for (let file of files) {
+                            if (file != "") {
+                                let obj = { url: file, certId: doc._id }
+                                arr.push(obj)
+                            }
+                        }
+                        await certificate_filesModel.insertMany(arr)
+                    }
+                    successResponse(201, "Certificate has been saved successfully.", {}, res)
+                })
+                .catch(err => errorResponse(422, err.message, res))
         }
         else {
             errorResponse(401, "Authentication failed", res);
@@ -25,8 +34,8 @@ exports.addCertificate = async (req, res) => {
 exports.getall = async (req, res) => {
     try {
         await certifcateModel.find({ isActive: true }).sort({ _id: -1 })
-        .populate({path: "docId", select: ["title"]})
-        .then((docs) => { successResponse(200, "Certificate retrieved successfully.", docs, res) }).catch(err => errorResponse(422, err.message, res))
+            .populate({ path: "docId", select: ["title"] })
+            .then((docs) => { successResponse(200, "Certificate retrieved successfully.", docs, res) }).catch(err => errorResponse(422, err.message, res))
     }
     catch (err) { console.log('error', err) }
 }
@@ -68,14 +77,14 @@ exports.removecertificate = async (req, res) => {
 
 }
 
-exports.getCertificateById =async (req, res) => {
- try{
-   let paramsId = req.params.id;
-   await certifcateModel.findOne({_id: paramsId}).populate({path: "docId", select: ["title"]})
-   .then((docs) => {
-    successResponse(200, "Certificate has been retrieved successfully.",docs, res);
-   }).catch(err => errorResponse(422, err.message,res));
- }catch(err) { 
-    errorResponse(500, err.message, res)
- }
+exports.getCertificateById = async (req, res) => {
+    try {
+        let paramsId = req.params.id;
+        await certifcateModel.findOne({ _id: paramsId }).populate({ path: "docId", select: ["title"] })
+            .then((docs) => {
+                successResponse(200, "Certificate has been retrieved successfully.", docs, res);
+            }).catch(err => errorResponse(422, err.message, res));
+    } catch (err) {
+        errorResponse(500, err.message, res)
+    }
 }
