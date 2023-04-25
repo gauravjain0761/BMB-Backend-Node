@@ -53,6 +53,8 @@ router.get("/admin/certificate/getall", verifyWebToken, certificateController.ge
 router.put("/admin/certificate/:id", verifyWebToken, certificateController.editCertificate);
 router.delete("/admin/certificate/:id", verifyWebToken, certificateController.removecertificate);
 router.get("/admin/certificategetById/:id", certificateController.getCertificateById);
+router.delete("/admin/remove_certificate_file/:id", verifyWebToken, certificateController.removecartificatefile)
+
 
 //============================= Event Registration ==========================//
 router.get("/admin/registration/getall", verifyWebToken, registrationController.getAllRegistrations);

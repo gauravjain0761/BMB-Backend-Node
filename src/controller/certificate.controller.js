@@ -120,3 +120,27 @@ exports.getCertificateById = async (req, res) => {
         errorResponse(500, err.message, res)
     }
 }
+
+
+//============================= remove File By Id ==========================//
+exports.removecartificatefile = async (req, res) => {
+    try {
+        let authUser = req.userData; file = req.params.id;
+        if (authUser.account_type === "ADMIN") {
+            await certificate_filesModel.findOne({ _id: mongoose.Types.ObjectId(file) }).then(async (docs) => {
+                if (docs) {
+                    existedImageremove(docs["_doc"].url);
+                    await certificate_filesModel.deleteOne({ _id: docs["_doc"]._id })
+                }
+                successResponse(200, "successfull", {}, res)
+            }).catch((err) => {
+                errorResponse(422, err.message, res)
+            })
+        }
+        else {
+            errorResponse(401, "Unauthorized User", res)
+        }
+    } catch (err) {
+        errorResponse(500, err.message, res)
+    }
+}
