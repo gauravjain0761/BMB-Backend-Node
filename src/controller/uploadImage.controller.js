@@ -1,6 +1,8 @@
 const sharp = require("sharp");
 const { Imageupload, removeImage } = require("../helpers/imageUpload");
-const { errorResponse, successResponse } = require("../helpers/response")
+const { errorResponse, successResponse } = require("../helpers/response");
+const certificate_filesModel = require('../models/certificate_files.model');
+
 //=========== Upload Image ==================
 exports.UploadFile = async (req, res) => {
   console.log("imageUpload api called");
@@ -69,6 +71,9 @@ exports.UploadFile = async (req, res) => {
 
 //=============== Remove Image ===================
 exports.removeFile = async (req, res) => {
-  console.log("removeImage api called");
-  await removeImage(req.body, res);
+let url = req.body.url.split("/");
+if(url[url.length - 2].toLowerCase() === "bmb.certificate"){
+  await certificate_filesModel.deleteOne({url: req.body.url})
+}
+await removeImage(req.body, res);
 };
