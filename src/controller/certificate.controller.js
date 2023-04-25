@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const certifcateModel = require('../models/certificate.model');
 const { successResponse, errorResponse } = require('../helpers/response');
 const certificate_filesModel = require('../models/certificate_files.model');
+const { existedImageremove } = require("../helpers/imageUpload");
 
 exports.addCertificate = async (req, res) => {
     let user = req.userData;
@@ -66,8 +67,16 @@ exports.removecertificate = async (req, res) => {
     let updateId = req.params.id;
     try {
         if (user.account_type == "ADMIN") {
-            await certifcateModel.findByIdAndRemove({ _id: updateId }).then(() => {
-                successResponse(200, "certificate has been removed successfully.", {}, res)
+            await certificate_filesModel.find({ certId: updateId }).then(async (docs) => {
+                if (docs.length > 0) {
+                    for (let el of docs) {
+                        existedImageremove(el.url);
+                        await certificate_filesModel.findByIdAndRemove({ _id: el._id })
+                    }
+                }
+                await certifcateModel.findByIdAndRemove({ _id: updateId }).then(() => {
+                    successResponse(200, "certificate has been removed successfully.", {}, res)
+                }).catch(err => errorResponse(422, err.message, res))
             }).catch(err => errorResponse(422, err.message, res))
         }
         else {
@@ -98,11 +107,11 @@ exports.getCertificateById = async (req, res) => {
                     let: { el: "$_id" },
                     pipeline: [{
                         $match: { $expr: { $eq: ["$certId", "$$el"] } }
-                    },{ $project: { url: 1 }}],
+                    }, { $project: { url: 1 } }],
                     as: "files"
                 }
             },
-            {$set: {docId : { $arrayElemAt: [ "$docId", 0 ] }}}
+            { $set: { docId: { $arrayElemAt: ["$docId", 0] } } }
         ])
             .then((docs) => {
                 successResponse(200, "Certificate has been retrieved successfully.", docs[0], res);
