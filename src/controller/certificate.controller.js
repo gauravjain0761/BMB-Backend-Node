@@ -16,7 +16,7 @@ exports.addCertificate = async (req, res) => {
                         let arr = []
                         for (let file of files) {
                             if (file != "") {
-                                let obj = { url: file, certId: doc._id }
+                                let obj = { url: file.url, certId: doc._id }
                                 arr.push(obj)
                             }
                         }
@@ -46,15 +46,16 @@ exports.editCertificate = async (req, res) => {
     let updateId = req.params.id;
     try {
         if (user.account_type == "ADMIN") {
-            let { url, isActive } = req.body;
-            let obj = {}
-            if (url && url != "") {
-                obj["url"] = url;
-            }
-            if (isActive) {
-                obj["isActive"] = isActive;
-            }
-            await certifcateModel.findByIdAndUpdate({ _id: updateId }, { $set: obj }).then((docs) => { successResponse(200, "Certificate has been updated successfully.", {}, res) }).catch(err => errorResponse(422, err.message, res))
+            let { files, isActive } = req.body;
+            console.log('req.body----->', req.body);
+            // let obj = {}
+            // if (url && url != "") {
+            //     obj["url"] = url;
+            // }
+            // if (isActive) {
+            //     obj["isActive"] = isActive;
+            // }
+            // await certifcateModel.findByIdAndUpdate({ _id: updateId }, { $set: obj }).then((docs) => { successResponse(200, "Certificate has been updated successfully.", {}, res) }).catch(err => errorResponse(422, err.message, res))
         }
         else {
             errorResponse(401, "Authentication failed", res);
