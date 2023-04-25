@@ -80,9 +80,32 @@ exports.removecertificate = async (req, res) => {
 exports.getCertificateById = async (req, res) => {
     try {
         let paramsId = req.params.id;
-        await certifcateModel.findOne({ _id: paramsId }).populate({ path: "docId", select: ["title"] })
+        await certifcateModel.aggregate([
+            { $match: { _id: mongoose.Types.ObjectId(paramsId) } },
+            {
+                $lookup: {
+                    from: "doctors",
+                    let: { doc: "$docId" },
+                    pipeline: [{
+                        $match: { $expr: { $eq: ["$_id", "$$doc"] } }
+                    }, { $project: { title: 1 } }],
+                    as: "docId"
+                }
+            },
+            {
+                $lookup: {
+                    from: "certificate_files",
+                    let: { el: "$_id" },
+                    pipeline: [{
+                        $match: { $expr: { $eq: ["$certId", "$$el"] } }
+                    },{ $project: { url: 1 }}],
+                    as: "files"
+                }
+            },
+            {$set: {docId : { $arrayElemAt: [ "$docId", 0 ] }}}
+        ])
             .then((docs) => {
-                successResponse(200, "Certificate has been retrieved successfully.", docs, res);
+                successResponse(200, "Certificate has been retrieved successfully.", docs[0], res);
             }).catch(err => errorResponse(422, err.message, res));
     } catch (err) {
         errorResponse(500, err.message, res)
