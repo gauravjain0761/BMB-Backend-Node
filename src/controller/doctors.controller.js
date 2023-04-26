@@ -222,11 +222,11 @@ exports.getDoctorById = async (req, res) => {
       },
       {
         $lookup: {
-          from: "certificates",
+          from: "certificate_files",
           let: { doc: "$_id" },
           pipeline: [
             { $match: { $expr: { $eq: ["$docId", "$$doc"] } } },
-            { $project: { url: 1 } }
+            {$project: {url : 1}}
           ],
           as: "certificates"
         }

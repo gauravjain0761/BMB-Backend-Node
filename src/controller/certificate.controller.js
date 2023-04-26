@@ -16,7 +16,7 @@ exports.addCertificate = async (req, res) => {
                         let arr = []
                         for (let file of files) {
                             if (file != "") {
-                                let obj = { url: file.url, certId: doc._id }
+                                let obj = { url: file.url, certId: doc._id, docId: doc.docId }
                                 arr.push(obj)
                             }
                         }
@@ -47,12 +47,12 @@ exports.editCertificate = async (req, res) => {
     try {
         if (user.account_type == "ADMIN") {
             let { files, docId } = req.body;
-            await certifcateModel.findOne({ _id: updateId }).then(async (doc) => {
+            await certifcateModel.findOne({ _id: updateId }).then(async (docs) => {
                 if (files.length > 0) {
                     let arr = []
                     for (let file of files) {
                         if (file != "" && !file._id) {
-                            let obj = { url: file.url, certId: doc._id }
+                            let obj = { url: file.url, certId: docs._id, docId: docs.docId }
                             arr.push(obj)
                         }
                     }
