@@ -19,7 +19,7 @@ exports.UploadFile = async (req, res) => {
         switch (type.toUpperCase()) {
           case "ANNOUNCEMENT":
             await sharp(file.buffer)
-              .resize(500, 450)
+              // .resize(500, 450)
               .toBuffer()
               .then((data) => {
                 file["buffer"] = data;
@@ -29,7 +29,7 @@ exports.UploadFile = async (req, res) => {
             break;
           case "PROFILE":
             await sharp(file.buffer)
-              .resize(350, 350)
+              // .resize(350, 350)
               .toBuffer()
               .then((data) => {
                 file["buffer"] = data;

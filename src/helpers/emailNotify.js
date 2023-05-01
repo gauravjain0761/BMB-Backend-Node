@@ -14,7 +14,6 @@ var transport = nodemailer.createTransport({
 
 exports.emailNotify = async (data, type) => {
     try {
-        // console.log(data, type);
         let payload = {
             from: `"BMB " <${senderAddress}>`,
         }
@@ -29,7 +28,6 @@ exports.emailNotify = async (data, type) => {
             default:
                 break;
         }
-        // console.log('payload', payload);
 
         transport.sendMail(payload, (error, body) => {
             if (error) console.log('sendMail error---->', error);
