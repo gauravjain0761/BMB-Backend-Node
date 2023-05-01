@@ -12,7 +12,7 @@ const registrationSchema = new mongoose.Schema({
     eventFee: { type: String, required: true },
     members: { type: Array, required: true },
     membersCount: { type: Number, required: true },
-    totalAmount: { type: String, required: true },
+    totalAmount: { type: Number, required: true },
     sponsors: { type: Array },
     organiser: { type: 'String', required: true },
     status: { type: String, enum: ['COMPLETED', 'PENDING'], required: true },

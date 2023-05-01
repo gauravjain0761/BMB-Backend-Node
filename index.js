@@ -17,7 +17,7 @@ const admin = require("./src/routes/admin.routes");
 const con = require("./src/config/db.config");
 
 con.on("open", () => {
-  console.log("db connected....");
+  console.log('I am Darkseid!');
 });
 
 const bodyParser = require("body-parser");
@@ -46,5 +46,4 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
-  console.log('I am Darkseid!');
 });
