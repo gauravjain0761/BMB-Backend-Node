@@ -55,7 +55,6 @@ exports.register = async (req, res) => {
         object.password = bcrypt.hashSync(password, saltRounds);
         let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
         let last = await doctorsModel.findOne({}).sort({ _id: -1 }).limit(1).select("docId");
-
         object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001';
         await new doctorsModel(object).save().then(async (docs) => {
           successResponse(201, "Doctor has been registered successfully.", docs, res);
@@ -225,7 +224,7 @@ exports.getDoctorById = async (req, res) => {
           let: { doc: "$_id" },
           pipeline: [
             { $match: { $expr: { $eq: ["$docId", "$$doc"] } } },
-            {$project: {url : 1}}
+            { $project: { url: 1 } }
           ],
           as: "certificates"
         }
@@ -233,7 +232,7 @@ exports.getDoctorById = async (req, res) => {
       {
         $project: {
           password: 0
-        } 
+        }
       }
     ]).then(docs => {
       successResponse(200, "Doctos retrieved successfully.", docs[0], res)
@@ -377,10 +376,10 @@ exports.verifyOtpMatch = async (req, res) => { }
 //============================= Import Excel ==========================//
 exports.importexcel = async (req, res) => {
   console.log('importexcel api called..');
-  let workbook = XLSX.readFile("./doctorspreadsheet_copy.xlsx");
+  let workbook = XLSX.readFile("./BMB_user_list.xlsx");
   let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  for (let i = 2; i < 4; i++) {
-    let counts = await doctorsModel.find({}).sort({created_at: -1 });
+  for (let i = 2; i <= 540; i++) {
+    let counts = await doctorsModel.find({}).sort({ created_at: -1 });
     const object = {};
     let name = worksheet[`B${i}`].v.split(" ");
     object.title = `Dr. ${worksheet[`B${i}`].v}`
@@ -388,25 +387,25 @@ exports.importexcel = async (req, res) => {
     object.middle_name = name.length > 2 ? name[1] : "";
     object.last_name = name.length > 2 ? name[2] : name[1];
     object.qualification = worksheet[`C${i}`].v;
-    object.email = !worksheet[`G${i}`] ? `xyz${i}@gmail.com` : worksheet[`G${i}`].v;
-    object.contact_number = !worksheet[`F${i}`] ? "" : worksheet[`F${i}`].v;
+    object.email = !worksheet[`H${i}`] ? `xyz${i}@gmail.com` : worksheet[`H${i}`].v.toLowerCase();
+    object.contact_number = !worksheet[`G${i}`] ? "" : worksheet[`G${i}`].v;
     object.password = bcrypt.hashSync(`BMB2023`, saltRounds);
-    object.home_address = !worksheet[`H${i}`] ? "" : worksheet[`H${i}`].v;
-    object.clinic_address = !worksheet[`I${i}`] ? "" : worksheet[`I${i}`].v;
-    object.addOfComunication = worksheet[`J${i}`] != "" ? worksheet[`J${i}`].v : "";
+    // object.home_address = !worksheet[`H${i}`] ? "" : worksheet[`H${i}`].v;
+    // object.clinic_address = !worksheet[`I${i}`] ? "" : worksheet[`I${i}`].v;
+    // object.addOfComunication = worksheet[`J${i}`] != "" ? worksheet[`J${i}`].v : "";
     object.blood_group = "O+";
     object.dob = "01/01/2000";
     object.reg_number = 000000;
     object.isApproved = "APPROVED";
-    object.speciality = "Unknown";
+    object.speciality = worksheet[`D${i}`] != "" ? worksheet[`D${i}`].v : "";
     object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001';
     object.account_type = "USER";
-    let dataExist = await doctorsModel.countDocuments({ $or: [ {email : object.email}, {contact_number : object.contact_number} ] })
-    if(dataExist === 0){
+    let dataExist = await doctorsModel.countDocuments({ $or: [{ email: object.email }, { contact_number: object.contact_number }] })
+    if (dataExist === 0) {
       await doctorsModel(object).save().then((docs) => { console.log('docs', docs.title, docs.docId) })
         .catch((err) => console.log('error', err))
-    }else{
-       console.log('dulicate data--->', object.title, object.email, object.contact_number);
+    } else {
+      console.log('dulicate data--->', object.title, object.email, object.contact_number);
     }
   }
   successResponse(200, "Doctors imported successfully", {}, res);

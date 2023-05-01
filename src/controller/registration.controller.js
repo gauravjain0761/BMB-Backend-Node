@@ -181,6 +181,7 @@ exports.verifyPayment = async (req, res) => {
 exports.membership = async (req, res) => {
     try {
         let docId = req.params.id;
+        console.log('docId', docId);
         if(isValidObjectId(docId)){
         await memberShipModel.findOne({ user: docId }).then(async(docs) => {
             if(docs){
