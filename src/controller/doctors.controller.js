@@ -45,8 +45,7 @@ exports.register = async (req, res) => {
         blood_group: blood_group,
         account_type: "DOCTOR",
         image: image ? image : "",
-        home_address: address,
-        home_address: home_address,
+        home_address: home_address ? home_address : address,
         state: state,
         marriage_date: marriage_date,
         degree_certificate: degree_certificate ? degree_certificate : "",
@@ -54,9 +53,8 @@ exports.register = async (req, res) => {
       }
       if (password != null && password != '') {
         object.password = bcrypt.hashSync(password, saltRounds);
-        let counts = await doctorsModel.find({}).sort({ "created_at": -1 });
         let last = await doctorsModel.findOne({}).sort({ _id: -1 }).limit(1).select("docId");
-        object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001';
+        object.docId = last != null > 0 ? `BMBDR${generateId(last['_doc'].docId)}` : 'BMBDR0001';
         await new doctorsModel(object).save().then(async (docs) => {
           successResponse(201, "Doctor has been registered successfully.", docs, res);
         }).catch(err => {
@@ -391,8 +389,8 @@ exports.importexcel = async (req, res) => {
     object.email = !worksheet[`H${i}`] ? `xyz${i}@gmail.com` : worksheet[`H${i}`].v.toLowerCase();
     object.contact_number = !worksheet[`G${i}`] ? "" : worksheet[`G${i}`].v;
     object.password = bcrypt.hashSync(`BMB2023`, saltRounds);
-    // object.home_address = !worksheet[`H${i}`] ? "" : worksheet[`H${i}`].v;
-    // object.clinic_address = !worksheet[`I${i}`] ? "" : worksheet[`I${i}`].v;
+    object.home_address = !worksheet[`I${i}`] ? "" : worksheet[`I${i}`].v;
+    object.clinic_address = !worksheet[`J${i}`] ? "" : worksheet[`J${i}`].v;
     // object.addOfComunication = worksheet[`J${i}`] != "" ? worksheet[`J${i}`].v : "";
     object.blood_group = "O+";
     object.dob = "01/01/2000";
@@ -401,6 +399,7 @@ exports.importexcel = async (req, res) => {
     object.speciality = worksheet[`D${i}`] != "" ? worksheet[`D${i}`].v : "";
     object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001';
     object.account_type = "USER";
+    object.state = worksheet[`K${i}`] != "" ? worksheet[`K${i}`].v : "";
     let dataExist = await doctorsModel.countDocuments({ $or: [{ email: object.email }, { contact_number: object.contact_number }] })
     if (dataExist === 0) {
       await doctorsModel(object).save().then((docs) => { console.log('docs', docs.title, docs.docId) })
