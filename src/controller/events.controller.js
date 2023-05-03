@@ -43,6 +43,21 @@ exports.getEvents = async (req, res) => {
             {$match: filter},
             {$skip: skip},
             {$limit:  limit},
+            {
+                $lookup: {
+                    from: "sponsers",
+                    let: { arr: "$sponsers" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $in: ["$_id", "$$arr"] },
+                                isActive: true
+                            }
+                        },
+                    ],
+                    as: "sponsers"
+                }
+            },    
             {$addFields: {status: { $cond: { if: { $gt: [ "$date", new Date()] }, then: "UPCOMING", else: "PAST" } }}}
         ]).sort({ _id: -1 }).then((docs) => {
             res.status(200).json({
