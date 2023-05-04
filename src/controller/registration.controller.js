@@ -165,9 +165,15 @@ exports.makePayment = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
     try {
-                console.log('verifyPayment api called..', req.body)
+        console.log('verifyPayment api called..', req.body)
+        // {
+        //     "razorpay_payment_id": "pay_29QQoUBi66xm2f",
+        //     "razorpay_order_id": "order_9A33XWu170gUtm",
+        //     "razorpay_signature": "9ef4dffbfd84f1318f6739a3ce19f9d85851857ae648f114332d8401e0949a3d"
+        //   }
+
         // let secret_key = "ClrflAfEoO98EuAbqU74n18a";
-        let docs = req.body.payload.payment.entity;
+        // let docs = req.body.payload.payment.entity;
         // if (docs.status === "captured") {
         //     let update = {
         //         payment_status: "CONFIRMED"
@@ -176,13 +182,6 @@ exports.verifyPayment = async (req, res) => {
         //         res.status(200).json({ status: true });
         //     })
         // }
-        // paymentId = "pay_LlFyAeJMnT6WKx"
-        // var instance = new Razorpay({  key_id: KEY_ID, key_secret: KEY_SECRET })
-        // instance.payments.fetch(paymentId).then(async(response) => [
-        //     console.log('verifyPayment response---->', response)
-        // ]).catch(async (error) =>{
-        //     console.log("vartification error", error);
-        // })    
     } catch (err) {
         errorResponse(500, err.message, res)
     }
@@ -257,9 +256,7 @@ const mebership_purchase = async (docId, res) => {
             receipt: membershipdata.length > 0 ? `order-${generateId(membershipdata[0].receipt)}` : "order-00001",
             payment_capture: 1
         }
-        console.log('option---->;,', option)
         instance.orders.create(option).then(async (response) => {
-            console.log('razorpay response------>', response);
             let obj = {
                 razorpay_order_id: response.id,
                 user: doctor._id,
@@ -270,7 +267,6 @@ const mebership_purchase = async (docId, res) => {
                 isActive: true
             }
             await new memberShipModel(obj).save().then((docs) => {
-                console.log(docs);
                 var order_info = {
                     key: KEY_ID,
                     order_id: docs.razorpay_order_id,
