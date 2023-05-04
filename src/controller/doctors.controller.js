@@ -250,7 +250,7 @@ exports.updatedoctor = async (req, res) => {
     if (body.email && body.email != "") {
       await doctorsModel.findOne({ email: body.email }).select("_id").then((doc) => {
         if (doc != null) {
-          if (doc._id.toString() === user._id.toString()) {
+          if (doc._id.toString() === body.doctorId.toString()) {
             updatedData.email = body.email;
           } else {
             errorResponse(422, "Email is already associated with an account.", res);
@@ -261,7 +261,7 @@ exports.updatedoctor = async (req, res) => {
     if (body.contact_number && body.contact_number != "") {
       await doctorsModel.findOne({ contact_number: body.contact_number }).select("_id").then((doc) => {
         if (doc != null) {
-          if (doc._id.toString() === user._id.toString()) {
+          if (doc._id.toString() === body.doctorId.toString()) {
             updatedData.contact_number = body.contact_number;
           } else {
             errorResponse(422, "Contact number is already associated with an account.", res);
@@ -270,26 +270,25 @@ exports.updatedoctor = async (req, res) => {
       });
     }
     updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
-      updatedData.first_name = body.first_name ? body.first_name : user?.first_name;
-    updatedData.last_name = body.last_name ? body.last_name : user?.last_name;
-    updatedData.middle_name = body.middle_name ? body.middle_name : user?.middle_name;
-    updatedData.qualification = body.qualification ? body.qualification : user?.qualification;
-    updatedData.speciality = body.speciality ? body.speciality : user?.speciality;
-    updatedData.reg_number = body.reg_number ? body.reg_number : user?.reg_number;
-    updatedData.dob = body.dob ? body.dob : user?.dob;
-    updatedData.address = body.address ? body.address : user?.address;
-    updatedData.home_address = body.home_address ? body.home_address : user?.home_address;
-    updatedData.blood_group = body.blood_group ? body.blood_group : user?.blood_group;
-    if (body.image && body.image != user?.image) {
+      updatedData.first_name = body.first_name ? body.first_name : "";
+    updatedData.last_name = body.last_name ? body.last_name : "";
+    updatedData.middle_name = body.middle_name ? body.middle_name : "";
+    updatedData.qualification = body.qualification ? body.qualification : "";
+    updatedData.speciality = body.speciality ? body.speciality : "";
+    updatedData.reg_number = body.reg_number ? body.reg_number : "";
+    updatedData.dob = body.dob ? body.dob : "";
+    updatedData.address = body.address ? body.address : "";
+    updatedData.home_address = body.home_address ? body.home_address : "";
+    updatedData.blood_group = body.blood_group ? body.blood_group : "";
+    if (body.image && user.account_type != "ADMIN" && user.body.image != user?.image) {
       existedImageremove(user.image);
       updatedData.image = body.image ? body.image : user?.image;
     }
     await doctorsModel.findOneAndUpdate({ _id: user._id }, { $set: updatedData }).then(async (docs) => {
       await doctorsModel.findOne({ _id: user._id }).select("first_name middle_name last_name").then(async (docs) => {
-        title = docs.middle_name !== "" ? `Dr. ${docs.first_name} ${docs.middle_name} ${docs.last_name}` : `Dr. ${docs.first_name} ${docs.last_name}`
-        await doctorsModel.findOneAndUpdate({ _id: user._id }, { $set: { title: title } }).then(async (docs) => {
           successResponse(200, "Doctor has been updated successfully.", {}, res);
-        })
+      }).catch((err) =>{
+        errorResponse(422, err.message, res)
       })
     })
   }
@@ -322,43 +321,6 @@ exports.approvedoctor = async (req, res) => {
   try {
     if (user.account_type == "ADMIN") {
       let body = req.body; let updatedData = {};
-      console.log('body', body);
-      // if (body.email && body.email != "") {
-      //   await doctorsModel.findOne({ email: body.email }).select("_id").then((doc) => {
-      //     if (doc != null) {
-      //       if (doc._id.toString() === body.doctorId.toString()) {
-      //         updatedData.email = body.email;
-      //       } else {
-      //         errorResponse(422, "Email is already associated with an account.", res);
-      //       }
-      //     }
-      //   });
-      // }
-      // if (body.contact_number && body.contact_number != "") {
-      //   await doctorsModel.findOne({ contact_number: body.contact_number }).select("_id").then((doc) => {
-      //     if (doc != null) {
-      //       if (doc._id.toString() === body.doctorId.toString()) {
-      //         updatedData.contact_number = body.contact_number;
-      //       } else {
-      //         errorResponse(422, "Contact number is already associated with an account.", res);
-      //       }
-      //     }
-      //   });
-      // }
-      // updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
-      //   updatedData.first_name = body.first_name;
-      // updatedData.last_name = body.last_name;
-      // updatedData.middle_name = body.middle_name;
-      // updatedData.qualification = body.qualification;
-      // updatedData.speciality = body.speciality;
-      // updatedData.reg_number = body.reg_number;
-      // updatedData.dob = body.dob;
-      // updatedData.marriage_date = body.marriage_date;
-      // updatedData.state = body.state;
-      // updatedData.blood_group = body.blood_group;
-      // updatedData.address = body.address;
-      // updatedData.home_address = body.home_address;
-      // updatedData.isApproved = body.isApproved.toUpperCase()
     if(body.isApproved){
       updatedData.isApproved = body.isApproved
     }
