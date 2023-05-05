@@ -244,9 +244,8 @@ exports.getDoctorById = async (req, res) => {
 //============================= Update Doctor ==========================//
 exports.updatedoctor = async (req, res) => {
   try {
-    let user = req.userData;
-    let updatedData = {};
-    let body = req.body;
+    let user = req.userData; body = req.body; updatedData = {};
+    let docId = user.account_type === "ADMIN" ? body.doctorId : user._id;
     if (body.email && body.email != "") {
       await doctorsModel.findOne({ email: body.email }).select("_id").then((doc) => {
         if (doc != null) {
@@ -255,9 +254,11 @@ exports.updatedoctor = async (req, res) => {
           } else {
             errorResponse(422, "Email is already associated with an account.", res);
           }
-        }
+        }else {updatedData.email = body.email;}
       });
     }
+    console.log('updatedData--->',updatedData);
+
     if (body.contact_number && body.contact_number != "") {
       await doctorsModel.findOne({ contact_number: body.contact_number }).select("_id").then((doc) => {
         if (doc != null) {
@@ -266,7 +267,7 @@ exports.updatedoctor = async (req, res) => {
           } else {
             errorResponse(422, "Contact number is already associated with an account.", res);
           }
-        }
+        } else {updatedData.contact_number = body.contact_number}
       });
     }
     updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
@@ -284,12 +285,10 @@ exports.updatedoctor = async (req, res) => {
       existedImageremove(user.image);
       updatedData.image = body.image ? body.image : user?.image;
     }
-    await doctorsModel.findOneAndUpdate({ _id: user._id }, { $set: updatedData }).then(async (docs) => {
-      await doctorsModel.findOne({ _id: user._id }).select("first_name middle_name last_name").then(async (docs) => {
+    await doctorsModel.findByIdAndUpdate({ _id: docId }, { $set: updatedData }).then(async (docs) => {
           successResponse(200, "Doctor has been updated successfully.", {}, res);
       }).catch((err) =>{
         errorResponse(422, err.message, res)
-      })
     })
   }
   catch (err) {
