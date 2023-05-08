@@ -9,6 +9,8 @@ const Schema = new mongoose.Schema({
     receipt: { type: String, required: true },
     amount: { type: Number, required: true },
     payment_status : {type: String, required: true, enum: ['PENDING', "CONFIRMED", "DECLINED"] },
+    razorpay_payment_id: { type: String },
+    razorpay_signature: { type: String },
     isActive: { type: Boolean, required: true }
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }

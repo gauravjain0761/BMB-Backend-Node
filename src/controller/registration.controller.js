@@ -8,6 +8,8 @@ const { isValidObjectId } = require("../middleware/validation");
 const { successResponse, errorResponse } = require("../helpers/response");
 var base64 = require('base-64');
 var utf8 = require('utf8');
+const crypto = require('crypto');
+
 
 const Razorpay = require('razorpay');
 let KEY_ID = process.env.RAZORPAY_KEY_ID_TEST;
@@ -121,7 +123,7 @@ exports.makePayment = async (req, res) => {
                 receipt: orderdata["_doc"].reg_num,
                 payment_capture: 1
             }
-            
+
             instance.orders.create(option).then(async (response) => {
                 let obj = {
                     reg: orderdata._id,
@@ -172,23 +174,38 @@ exports.makePayment = async (req, res) => {
 exports.verifyPayment = async (req, res) => {
     try {
         console.log('verifyPayment api called..', req.body)
-        // {
-        //     "razorpay_payment_id": "pay_29QQoUBi66xm2f",
-        //     "razorpay_order_id": "order_9A33XWu170gUtm",
-        //     "razorpay_signature": "9ef4dffbfd84f1318f6739a3ce19f9d85851857ae648f114332d8401e0949a3d"
-        //   }
 
-        // let secret_key = "ClrflAfEoO98EuAbqU74n18a";
-        // let docs = req.body.payload.payment.entity;
-        // if (docs.status === "captured") {
-        //     let update = {
-        //         payment_status: "CONFIRMED"
-        //     }
-        //     await PaymentModel.findOneAndUpdate({ razorpay_order_id: docs.order_id }, { $set: update }).then((doc) => {
-        //         res.status(200).json({ status: true });
-        //     })
-        // }
+        const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+
+        if (!razorpay_order_id && !razorpay_payment_id && !razorpay_signature) {
+            errorResponse(422, "Invalid response", res)
+        }
+
+        const text = `${razorpay_order_id}|${razorpay_payment_id}`;
+        const generated_signature = crypto.createHmac('sha256', KEY_SECRET)
+            .update(text)
+            .digest('hex');
+
+        if (generated_signature === razorpay_signature) {
+
+            let update = {
+                payment_status: "CONFIRMED",
+                razorpay_payment_id,
+                razorpay_signature
+            }
+
+            await PaymentModel.findOneAndUpdate({ razorpay_order_id }, { $set: update }, { new: true, upsert: true })
+              
+            successResponse(200, "Payment has been verified successfully", {}, res)
+            
+        } else{
+
+            errorResponse(422, "Invalid Signature", res)
+        }
+
+
     } catch (err) {
+        console.log('err', err)
         errorResponse(500, err.message, res)
     }
 }
