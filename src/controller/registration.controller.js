@@ -106,6 +106,7 @@ exports.getById = async (req, res) => {
 // ============================== Make Payment API ==================
 exports.makePayment = async (req, res) => {
     let body = req.body; user = req.userData;
+
     if (user.account_type === "DOCTOR") {
         if (body.reg_id && mongoose.isValidObjectId(body.reg_id)) {
 
@@ -113,12 +114,14 @@ exports.makePayment = async (req, res) => {
                 path: "doctorId", model: "doctors",
                 select: ["title", "first_name", "last_name", "email", "contact_number"]
             })
+
             let option = {
                 amount: orderdata["_doc"].totalAmount * 100,
                 currency: "INR",
                 receipt: orderdata["_doc"].reg_num,
                 payment_capture: 1
             }
+            
             instance.orders.create(option).then(async (response) => {
                 let obj = {
                     reg: orderdata._id,
@@ -154,6 +157,9 @@ exports.makePayment = async (req, res) => {
                         };
                         successResponse(200, "Order has been created successfully", { ...docs["_doc"], order_info: order_info }, res)
                     })
+            }).catch((error) => {
+                console.log('error', error);
+                errorResponse(422, error.error?.description, res)
             })
         } else {
             errorResponse(422, "Invalid registration Id", res)
