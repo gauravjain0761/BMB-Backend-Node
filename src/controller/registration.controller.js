@@ -51,7 +51,7 @@ exports.createRegistration = async (req, res) => {
                         eventData: docs?.date,
                         eventFee: docs.bookingAmount,
                         sponsors: docs?.sponsers,
-                        totalAmount: members.length * docs.bookingAmount,
+                        totalAmount: (members.length + 1) * docs.bookingAmount,
                         organiser: docs?.organiser,
                         status: "PENDING",
                     }
