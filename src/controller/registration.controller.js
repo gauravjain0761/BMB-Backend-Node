@@ -47,11 +47,11 @@ exports.createRegistration = async (req, res) => {
                         email: user?.email,
                         contact_number: user?.contact_number,
                         members: members,
-                        membersCount: members.length,
+                        membersCount: (members?.length || 0),
                         eventData: docs?.date,
                         eventFee: docs.bookingAmount,
                         sponsors: docs?.sponsers,
-                        totalAmount: (members.length + 1) * docs.bookingAmount,
+                        totalAmount: ((members?.length || 0) + 1) * docs.bookingAmount,
                         organiser: docs?.organiser,
                         status: "PENDING",
                     }
