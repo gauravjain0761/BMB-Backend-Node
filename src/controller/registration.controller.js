@@ -12,8 +12,8 @@ const crypto = require('crypto');
 
 
 const Razorpay = require('razorpay');
-let KEY_ID = process.env.RAZORPAY_KEY_ID_TEST;
-let KEY_SECRET = process.env.RAZORPAY_KEY_SECRET_TEST;
+let KEY_ID = process.env.RAZORPAY_KEY_ID;
+let KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
 var instance = new Razorpay({
     key_id: KEY_ID,
