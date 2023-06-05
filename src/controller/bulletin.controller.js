@@ -92,10 +92,14 @@ exports.deleteBulletin = async (req, res) => {
 
 exports.getAllBulletinByGroupDate = async (req, res) => {
     try {
+
         let bulletin = await bulletinModel.aggregate([
             {
                 $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                    _id: {
+                        month: { $month: "$date" },
+                        year: { $year: "$date" }
+                    },
                     bulletins: { $push: "$$ROOT" }
                 }
             },
