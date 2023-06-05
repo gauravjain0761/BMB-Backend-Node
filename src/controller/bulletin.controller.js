@@ -21,21 +21,31 @@ exports.addBulletin = async (req, res) => {
 
         return successResponse(200, 'Bulletin added successfully', result, res);
 
-    } catch (err) { console.log('error', err) }
+    } catch (err) {
+        console.log('error', err)
+        return errorResponse(500, 'Internal server error', res);
+    }
 }
 
 exports.getAllBulletin = async (req, res) => {
     try {
         let bulletin = await bulletinModel.find();
         return successResponse(200, 'Bulletin list', bulletin, res);
-    } catch (err) { console.log('error', err) }
+    } catch (err) {
+        console.log('error', err)
+        return errorResponse(500, 'Internal server error', res);
+    }
 }
 
 exports.getBulletinById = async (req, res) => {
     try {
         let bulletin = await bulletinModel.findById(req.params.id);
         return successResponse(200, 'Bulletin details', bulletin, res);
-    } catch (err) { console.log('error', err) }
+    } catch (err) {
+        console.log('error', err)
+        return errorResponse(500, 'Internal server error', res);
+
+    }
 }
 
 exports.updateBulletin = async (req, res) => {
@@ -51,6 +61,10 @@ exports.updateBulletin = async (req, res) => {
         let bulletin = await bulletinModel.findById(req.params.id);
         if (!bulletin) return errorResponse(404, 'Bulletin not found', res);
 
+        const bulletinExits = await bulletinModel.findOne({ title: title, _id: { $ne: req.params.id } });
+
+        if (bulletinExits) return errorResponse(400, 'Bulletin already exists', res);
+
         bulletin.title = title;
         bulletin.author = author;
         bulletin.date = date;
@@ -59,7 +73,10 @@ exports.updateBulletin = async (req, res) => {
         let result = await bulletin.save();
         return successResponse(200, 'Bulletin updated successfully', result, res);
 
-    } catch (err) { console.log('error', err) }
+    } catch (err) {
+        console.log('error', err)
+        return errorResponse(500, 'Internal server error', res);
+    }
 }
 
 
@@ -67,11 +84,13 @@ exports.deleteBulletin = async (req, res) => {
     try {
         let bulletin = await bulletinModel.findByIdAndDelete(req.params.id);
         return successResponse(200, 'Bulletin deleted successfully', bulletin, res);
-    } catch (err) { console.log('error', err) }
+    } catch (err) {
+        console.log('error', err)
+        return errorResponse(500, 'Internal server error', res);
+    }
 }
 
 exports.getAllBulletinByGroupDate = async (req, res) => {
-
     try {
         let bulletin = await bulletinModel.aggregate([
             {
@@ -86,7 +105,6 @@ exports.getAllBulletinByGroupDate = async (req, res) => {
     } catch (err) {
         console.log('error', err)
         return errorResponse(500, 'Something went wrong', res);
-
     }
 }
 
