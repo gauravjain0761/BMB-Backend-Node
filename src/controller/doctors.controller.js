@@ -25,7 +25,7 @@ function generateId(value) {
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, address, password,home_address, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
+    let { first_name, middle_name, last_name, email, address, password, home_address, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
     let existedRegistration = await doctorsModel.countDocuments({ reg_number: reg_number })
     if (existedRegistration > 0) {
       errorResponse(422, "Registration number already exists", res);
@@ -208,6 +208,35 @@ exports.getAllDoctors = async (req, res) => {
   }
 }
 
+// //============================= Get All Doctor ==========================//
+exports.getAllDoctorsDetails = async (req, res) => {
+  try {
+
+    const { page = 1, limit = 10, search = '' } = req.query;
+
+    const doctors = await doctorsModel.find({
+      $or: [
+        { title: { $regex: search, $options: 'i' } },
+        { first_name: { $regex: search, $options: 'i' } },
+        { middle_name: { $regex: search, $options: 'i' } },
+        { last_name: { $regex: search, $options: 'i' } },
+      ]
+    })
+      .select("-password  -__v -account_type -otp")
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ created_at: -1 })
+      .exec();
+
+    return successResponse(200, "Doctos retrieved successfully.", doctors, res)
+
+
+  } catch (error) {
+    console.log('error--->', error);
+    res.status(500).json({ message: error.message })
+  }
+}
+
 //============================= Get Doctor By Id==========================//
 exports.getDoctorById = async (req, res) => {
   try {
@@ -254,10 +283,10 @@ exports.updatedoctor = async (req, res) => {
           } else {
             errorResponse(422, "Email is already associated with an account.", res);
           }
-        }else {updatedData.email = body.email;}
+        } else { updatedData.email = body.email; }
       });
     }
-    console.log('updatedData--->',updatedData);
+    console.log('updatedData--->', updatedData);
 
     if (body.contact_number && body.contact_number != "") {
       await doctorsModel.findOne({ contact_number: body.contact_number }).select("_id").then((doc) => {
@@ -267,7 +296,7 @@ exports.updatedoctor = async (req, res) => {
           } else {
             errorResponse(422, "Contact number is already associated with an account.", res);
           }
-        } else {updatedData.contact_number = body.contact_number}
+        } else { updatedData.contact_number = body.contact_number }
       });
     }
     updatedData.title = body.middle_name ? `Dr. ${body.first_name} ${body.middle_name} ${body.last_name}` : `Dr. ${body.first_name} ${body.last_name}`,
@@ -286,9 +315,9 @@ exports.updatedoctor = async (req, res) => {
       updatedData.image = body.image ? body.image : user?.image;
     }
     await doctorsModel.findByIdAndUpdate({ _id: docId }, { $set: updatedData }).then(async (docs) => {
-          successResponse(200, "Doctor has been updated successfully.", {}, res);
-      }).catch((err) =>{
-        errorResponse(422, err.message, res)
+      successResponse(200, "Doctor has been updated successfully.", {}, res);
+    }).catch((err) => {
+      errorResponse(422, err.message, res)
     })
   }
   catch (err) {
@@ -320,9 +349,9 @@ exports.approvedoctor = async (req, res) => {
   try {
     if (user.account_type == "ADMIN") {
       let body = req.body; let updatedData = {};
-    if(body.isApproved){
-      updatedData.isApproved = body.isApproved
-    }
+      if (body.isApproved) {
+        updatedData.isApproved = body.isApproved
+      }
       await doctorsModel.findByIdAndUpdate({ _id: body.doctorId }, { $set: updatedData }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
     } else {
       errorResponse(401, "Authentication failed", res);
