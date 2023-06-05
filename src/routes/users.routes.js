@@ -11,6 +11,8 @@ const galleryController = require("../controller/gallery.controller");
 const quizController = require("../controller/quiz.controller");
 const uploadMiddleware = require("../middleware/upload");
 const { verifyWebToken } = require("../helpers/jwt");
+const bulletinController = require("../controller/bulletin.controller");
+
 
 //============================= Docotor Account ==========================//
 router.post("/doctor/signup",verifyEmail, verifyPhone, verifyDocAccount, doctorsController.register);
@@ -57,6 +59,9 @@ router.get("/gallery/getall", galleryController.getAllGallery);
 
 //============================= Quiz ==========================//
 router.get("/quiz/get", verifyWebToken, quizController.getQuiz);
+
+//============================= Bulletin ==========================//
+router.get("/bulletin/getall",verifyWebToken, bulletinController.getAllBulletinByGroupDate);
 
 
 module.exports = router;

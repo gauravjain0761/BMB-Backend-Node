@@ -9,6 +9,7 @@ const registrationController = require("../controller/registration.controller");
 const certificateController = require("../controller/certificate.controller");
 const quizController = require("../controller/quiz.controller");
 const galleryController = require("../controller/gallery.controller");
+const bulletinController = require("../controller/bulletin.controller");
 const { verifyadmin } = require("../middleware/validation");
 const { verifyWebToken } = require("../helpers/jwt");
 
@@ -70,6 +71,15 @@ router.get("/admin/gallery/:id", galleryController.getGallerybyId);
 router.delete("/admin/remove_gallery/:id",verifyWebToken, galleryController.removeGallery);
 router.put("/admin/gallery_update/:id", verifyWebToken,galleryController.updateGallery)
 router.delete("/admin/remove_gallery_file/:id", verifyWebToken, galleryController.removeGalleryFile)
+
+// ============================= Bulletin ==========================//
+router.post("/admin/bulletin/add", verifyWebToken, bulletinController.addBulletin);
+router.get("/admin/bulletin/getall", verifyWebToken, bulletinController.getAllBulletin);
+router.get("/admin/bulletin/:id", verifyWebToken, bulletinController.getBulletinById);
+router.put("/admin/bulletin_update/:id", verifyWebToken, bulletinController.updateBulletin);
+router.delete("/admin/remove_bulletin/:id", verifyWebToken, bulletinController.deleteBulletin);
+
+
 
 module.exports = router;
 
