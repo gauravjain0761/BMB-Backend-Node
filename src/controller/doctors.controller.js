@@ -25,7 +25,7 @@ function generateId(value) {
 //============================= Doctor Register==========================//
 exports.register = async (req, res) => {
   try {
-    let { first_name, middle_name, last_name, email, address, password, home_address, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state } = req.body;
+    let { first_name, middle_name, last_name, email, address, password, home_address, contact_number, qualification, marriage_date, speciality, reg_number, dob, blood_group, degree_certificate, mmc_certificate, image, state, fcmToken } = req.body;
     let existedRegistration = await doctorsModel.countDocuments({ reg_number: reg_number })
     if (existedRegistration > 0) {
       errorResponse(422, "Registration number already exists", res);
@@ -49,7 +49,8 @@ exports.register = async (req, res) => {
         state: state,
         marriage_date: marriage_date,
         degree_certificate: degree_certificate ? degree_certificate : "",
-        mmc_certificate: mmc_certificate ? mmc_certificate : ""
+        mmc_certificate: mmc_certificate ? mmc_certificate : "",
+        fcmToken: fcmToken ? fcmToken : "",
       }
       if (password != null && password != '') {
         object.password = bcrypt.hashSync(password, saltRounds);
@@ -70,7 +71,7 @@ exports.register = async (req, res) => {
 //============================= Doctor Login ==========================//
 exports.doctorlogin = async (req, res) => {
   try {
-    let { username, password } = req.body;
+    let { username, password, fcmToken } = req.body;
     await doctorsModel.findOne({ $or: [{ email: username }, { contact_number: username }] }).then((docs) => {
       if (!docs) {
         errorResponse(422, "Account does not exists.", res);
@@ -83,6 +84,11 @@ exports.doctorlogin = async (req, res) => {
             delete docs["_doc"].otp;
             delete docs["_doc"].password
             successResponse(200, "Login successfully.", docs, res);
+
+            // Update FCM Token
+            if (fcmToken) {
+              doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { fcmToken } })
+            }
           } else {
             errorResponse(422, "Password does not matched.", res)
           }

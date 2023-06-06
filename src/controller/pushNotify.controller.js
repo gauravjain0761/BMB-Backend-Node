@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const pushnotifyModel = require('../models/pushnotify.model');
 const doctorModel = require('../models/doctors.model');
 const { successResponse, errorResponse } = require('../helpers/response');
+const { sendCloudNotification } = require('../helpers/pushNotify');
 // Import the functions you need from the SDKs you need
 // import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics";
@@ -25,27 +26,57 @@ const firebaseConfig = {
 // const analytics = getAnalytics(app);
 
 exports.createNotification = async (req, res) => {
-    let user = req.userData;
     try {
-        if (user.account_type == "ADMIN") {
-            let { content, title, date } = req.body;
-            let updateData = {
-                title: title,
-                content: content,
-                date: date,
-                isActive: true
-            }
-            await pushnotifyModel(updateData).save().then((docs) => {
-                successResponse(201, "Notification saved successfully", docs, res);
-                // sendPushNotify(docs);
-            }).catch(err => errorResponse(422, err.message, res))
-        } else {
-            errorResponse(401, "Authentication failed", res);
+        const user = req.userData;
+        
+        if (user.account_type !== "ADMIN") {
+            return errorResponse(401, "Authentication failed", res);
         }
+
+        const { content, title, date } = req.body;
+        const updateData = {
+            title: title,
+            content: content,
+            date: date,
+            
+        };
+
+        const newNotification = await pushnotifyModel.create(updateData);
+        successResponse(201, "Notification saved successfully", newNotification, res);
+
+        // Send push notification to all approved doctors
+        const doctors = await doctorModel.find({ isApproved: "APPROVED", fcmToken : {
+            $ne: ''
+        } }).lean();
+
+        if (doctors.length > 0) {
+            const promises = doctors.map(async (doctor) => {
+            if (doctor?.fcmToken) {
+                const message = {
+                    title: title,
+                    body: content,
+                };
+
+                return sendCloudNotification(doctor.fcmToken, message);
+            }
+        });
+
+        Promise.all(promises)
+            .then((data) => {
+                console.log('data', data);
+            })
+            .catch((err) => {
+                console.log('err', err);
+            });
+        }
+
+        
     } catch (error) {
         console.log('error creating notification', error);
+        errorResponse(500, "Internal Server Error", res);
     }
-}
+};
+
 
 exports.getAll = async (req, res) => {
     let user = req.userData;

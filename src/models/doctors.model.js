@@ -85,6 +85,10 @@ const doctorschema = new mongoose.Schema({
     otp :{
         type: Number
     },
+    fcmToken: {
+        type: String,
+        default: ''
+    },
     web_token: {type: String},
     app_token: {type: String},
 }, {
