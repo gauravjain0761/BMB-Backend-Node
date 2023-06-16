@@ -87,7 +87,12 @@ exports.doctorlogin = async (req, res) => {
 
             // Update FCM Token
             if (fcmToken) {
-              doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: { fcmToken } })
+              console.log('fcmToken--5555555->', fcmToken);
+              doctorsModel.findOneAndUpdate({ _id: docs['_doc']?._id }, { fcmToken: fcmToken }, { upsert: true, new: true }).then((result) => {
+                console.log('result--->', result);
+              }).catch((err) => {
+                console.log('err--->', err);
+              })
             }
           } else {
             errorResponse(422, "Password does not matched.", res)
