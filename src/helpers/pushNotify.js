@@ -21,9 +21,8 @@ exports.sendCloudNotification = async (token, msg) => {
                 type: 'message'
             },
         };
-
         const response = await admin.messaging().sendToDevice(token, payload);
-        console.log('Successfully sent notification:', response);
+        console.log('Successfully sent notification:',response);
     } catch (error) {
         console.error('Error sending notification:', error);
     }

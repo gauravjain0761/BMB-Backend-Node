@@ -49,27 +49,22 @@ exports.createNotification = async (req, res) => {
             $ne: ''
         } }).lean();
 
+    
         if (doctors.length > 0) {
-            const promises = doctors.map(async (doctor) => {
-            if (doctor?.fcmToken) {
-                const message = {
-                    title: title,
-                    body: content,
-                };
+            for (let ele of doctors) {
+                    if(ele?.fcmToken){
+                        const message = {
+                            title: title,
+                            body: content,
+                            sound: "default",
+                            date: String(new Date()),
+                        };
 
-                return sendCloudNotification(doctor.fcmToken, message);
+                        sendCloudNotification(ele.fcmToken, message);
+                    }
             }
-        });
-
-        Promise.all(promises)
-            .then((data) => {
-                console.log('data', data);
-            })
-            .catch((err) => {
-                console.log('err', err);
-            });
         }
-
+    
         
     } catch (error) {
         console.log('error creating notification', error);
