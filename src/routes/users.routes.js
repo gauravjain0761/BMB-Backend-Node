@@ -62,7 +62,7 @@ router.get("/gallery/getall", galleryController.getAllGallery);
 router.get("/quiz/get", verifyWebToken, quizController.getQuiz);
 
 //============================= Bulletin ==========================//
-router.get("/bulletin/getall",verifyWebToken, bulletinController.getAllBulletinByGroupDate);
+router.get("/bulletin/getall", bulletinController.getAllBulletinByGroupDate);
 
 
 module.exports = router;
