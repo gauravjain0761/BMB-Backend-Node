@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { successResponse, errorResponse } = require('../helpers/response');
 const bulletinModel = require('../models/bulletin.model');
 const { sendCloudNotification } = require('../helpers/pushNotify');
+const doctorsModel = require('../models/doctors.model');
 
 exports.addBulletin = async (req, res) => {
     let user = req.userData;
@@ -23,7 +24,7 @@ exports.addBulletin = async (req, res) => {
         successResponse(200, 'Bulletin added successfully', result, res);
 
         // send push notification to all approved doctors
-        const doctors = await doctorModel.find({
+        const doctors = await doctorsModel.find({
             isApproved: "APPROVED", fcmToken: {
                 $ne: ''
             }
