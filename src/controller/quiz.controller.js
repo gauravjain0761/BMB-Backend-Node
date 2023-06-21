@@ -17,7 +17,8 @@ exports.createQuiz = async (req, res) => {
             title: "New Quiz",
             body: `Hey Tab to start QUIZ Now!`,
             sound: "default",
-            click_action : body?.url
+            click_action : body?.url,
+            type : "quiz"
           };
 
           sendNotification(message);
