@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 const serviceAccount = require("../config/bmb-project-381908-firebase-adminsdk-7097f-d48cf3e8a5.json");
+const doctorsModel = require("../models/doctors.model");
 
 const topicName = 'industry-tech';
 
@@ -32,7 +33,7 @@ exports.sendCloudNotification = async (token, msg) => {
 exports.sendNotification = async (msg) => {
     try {
 
-        const doctors = await doctorModel.find({
+        const doctors = await doctorsModel.find({
             isApproved: "APPROVED", fcmToken: {
                 $ne: ''
             }
@@ -47,7 +48,7 @@ exports.sendNotification = async (msg) => {
                         date: String(new Date()),
                     };
 
-                    sendCloudNotification(ele.fcmToken, message);
+                    this.sendCloudNotification(ele.fcmToken, message);
                 }
             }
         }
