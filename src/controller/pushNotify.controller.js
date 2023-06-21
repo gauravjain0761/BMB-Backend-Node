@@ -58,7 +58,8 @@ exports.createNotification = async (req, res) => {
                             body: content,
                             sound: "default",
                             date: String(new Date()),
-                            ...(link && { click_action: link })
+                            ...(link && { click_action: link }),
+                            type : "customMessage"
                         };
 
                         sendCloudNotification(ele.fcmToken, message);
