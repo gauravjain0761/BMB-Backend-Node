@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const QuizModel = require('../models/quiz.model');
 const { successResponse, errorResponse } = require('../helpers/response');
+const { sendNotification } = require('../helpers/pushNotify');
 
 //============================= Create Quiz ==========================//
 exports.createQuiz = async (req, res) => {
@@ -10,6 +11,17 @@ exports.createQuiz = async (req, res) => {
       let body = req.body;
       await new QuizModel({ url: body.url }).save().then((docs) => {
         successResponse(201, "quiz created successfully", docs, res);
+
+        // send notification
+          const message = {
+            title: "New Quiz",
+            body: `Hey Tab to start QUIZ Now!`,
+            sound: "default",
+            click_action : body?.url
+          };
+
+          sendNotification(message);
+
       }).catch((err) => {
         errorResponse(422, err.message, res);
       })

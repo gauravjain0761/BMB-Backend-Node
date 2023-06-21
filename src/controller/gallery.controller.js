@@ -3,7 +3,8 @@ const galleryModel = require("../models/gallery.model");
 const galleryFilesModel = require("../models/galley_files.model")
 const { errorResponse, successResponse } = require("../helpers/response");
 const { existedImageremove } = require("../helpers/imageUpload")
-const { verifyKey } = require("../helpers/verifyKey")
+const { verifyKey } = require("../helpers/verifyKey");
+const { sendNotification } = require("../helpers/pushNotify");
 
 
 //============================= Create Gallery ==========================//
@@ -25,6 +26,19 @@ exports.createGallery = async (req, res) => {
                     await galleryFilesModel.insertMany(arr)
                 }
                 successResponse(200, "Create successfull", doc, res);
+
+
+               // send notification
+
+               const message = {
+                title: "New Gallery",
+                body: `Hey check the uploaded latest images of BMB medimeet.`,
+                sound: "default",
+                type : "gallery"
+               };
+
+               sendNotification(message);
+
             }).catch((err) => {
                 errorResponse(422, err.message, res)
             })

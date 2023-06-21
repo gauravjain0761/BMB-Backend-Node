@@ -10,6 +10,10 @@ const pushnotifySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    link : {
+        type: String,
+        required: false
+    },
     date: {
         type: Date,
         required: true

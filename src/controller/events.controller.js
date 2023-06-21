@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { successResponse, errorResponse } = require('../helpers/response');
 const eventsModel = require('../models/events.model');
+const { sendNotification } = require('../helpers/pushNotify');
 
 
 exports.addEvent = async (req, res) => {
@@ -24,6 +25,23 @@ exports.addEvent = async (req, res) => {
             }
             await new eventsModel(obj).save().then(docs => {
                 successResponse(201, "Event has been created.", docs, res);
+
+                // send  notification
+
+                let newDate = new Date(docs.date).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                }).replace(/ /g, ' ');
+
+                const message = {
+                    title:  "New Event",
+                    body:  ` Please register for the upcoming bmb meeting on ${newDate}. You can
+                    register from the mobile app directly.`,
+                    sound: "default",
+                    type : "event",
+                  };
+        
+                  sendNotification(message);
+
             }).catch(err => { errorResponse(422, err.message, res) })
         } else {
             errorResponse(401, "Authentication failed", res);

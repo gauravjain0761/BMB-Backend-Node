@@ -31,12 +31,16 @@ app.use(bodyParser.json());
 var cors = require("cors");
 const { append } = require("express/lib/response");
 const { application } = require("express");
+const { eventReminder } = require("./src/helpers/eventReminder");
 app.use(cors());
 app.options("*", cors());
 app.use(express.json());
 
 app.use("/api", admin);
 app.use("/api", users);
+
+// call eventReminder function
+eventReminder();
 
 
 app.get("/", (req, res) => {

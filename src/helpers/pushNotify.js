@@ -18,12 +18,40 @@ exports.sendCloudNotification = async (token, msg) => {
             },
             data: {
                 title: msg.title,
-                type: 'message'
+                type: msg?.type || 'message',
+                ...(msg?.click_action && { click_action: msg.click_action })
             },
         };
         const response = await admin.messaging().sendToDevice(token, payload);
-        console.log('Successfully sent notification:',response);
+        console.log('Successfully sent notification:', response);
     } catch (error) {
         console.error('Error sending notification:', error);
     }
 };
+
+exports.sendNotification = async (msg) => {
+    try {
+
+        const doctors = await doctorModel.find({
+            isApproved: "APPROVED", fcmToken: {
+                $ne: ''
+            }
+        }).lean();
+
+        if (doctors.length > 0) {
+            for (let ele of doctors) {
+                if (ele?.fcmToken) {
+                    const message = {
+                        ...msg,
+                        sound: "default",
+                        date: String(new Date()),
+                    };
+
+                    sendCloudNotification(ele.fcmToken, message);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error sending notification:', error);
+    }
+}

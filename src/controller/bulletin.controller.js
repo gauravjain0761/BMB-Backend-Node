@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { successResponse, errorResponse } = require('../helpers/response');
 const bulletinModel = require('../models/bulletin.model');
+const { sendCloudNotification } = require('../helpers/pushNotify');
 
 exports.addBulletin = async (req, res) => {
     let user = req.userData;
@@ -19,7 +20,33 @@ exports.addBulletin = async (req, res) => {
         let bulletin = new bulletinModel(req.body);
         let result = await bulletin.save();
 
-        return successResponse(200, 'Bulletin added successfully', result, res);
+        successResponse(200, 'Bulletin added successfully', result, res);
+
+        // send push notification to all approved doctors
+        const doctors = await doctorModel.find({
+            isApproved: "APPROVED", fcmToken: {
+                $ne: ''
+            }
+        }).lean();
+
+
+        if (doctors.length > 0) {
+            for (let ele of doctors) {
+                if (ele?.fcmToken) {
+                    const message = {
+                        title: "New Bulletin",
+                        body: `Check out new bulletins added on a new technique in by ${author} `,
+                        sound: "default",
+                        date: String(new Date()),
+                        type : "bulletins"
+                    };
+
+                    sendCloudNotification(ele.fcmToken, message);
+                }
+            }
+        }
+
+
 
     } catch (err) {
         console.log('error', err)

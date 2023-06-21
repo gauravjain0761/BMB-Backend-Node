@@ -33,12 +33,12 @@ exports.createNotification = async (req, res) => {
             return errorResponse(401, "Authentication failed", res);
         }
 
-        const { content, title, date } = req.body;
+        const { content, title, date, link } = req.body;
         const updateData = {
             title: title,
             content: content,
             date: date,
-            
+            ...(link && { link: link })
         };
 
         const newNotification = await pushnotifyModel.create(updateData);
@@ -58,6 +58,7 @@ exports.createNotification = async (req, res) => {
                             body: content,
                             sound: "default",
                             date: String(new Date()),
+                            ...(link && { click_action: link })
                         };
 
                         sendCloudNotification(ele.fcmToken, message);
