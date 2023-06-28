@@ -6,7 +6,10 @@ const adminModel = require("../models/admin.model");
 exports.generateWebToken = (docId) => {
   return jwt.sign({
     data: docId,
-  }, secret, { expiresIn: 60 * 60 * 24 * 7 });
+  }, secret);
+  // return jwt.sign({
+  //   data: docId,
+  // }, secret, { expiresIn: 60 * 60 * 24 * 7 });
 }
 
 exports.verifyWebToken = async (req, res, next) => {

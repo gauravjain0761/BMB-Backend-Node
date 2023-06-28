@@ -31,8 +31,8 @@ exports.createGallery = async (req, res) => {
                // send notification
 
                const message = {
-                title: "New Gallery",
-                body: `Hey check the uploaded latest images of BMB medimeet.`,
+                title: "🌟 Don't miss out on these incredible snapshots!",
+                body: `Check ${name} magical moments of recent bMb event! 🤩📸`,
                 sound: "default",
                 type : "gallery"
                };

@@ -35,8 +35,8 @@ exports.addBulletin = async (req, res) => {
             for (let ele of doctors) {
                 if (ele?.fcmToken) {
                     const message = {
-                        title: "New Bulletin",
-                        body: `Check out new bulletins added on a new technique in by ${author} `,
+                        title: "📢 Stay Informed with the Latest Bulletin! 🗞️",
+                        body: "🌟 Knowledge is power, so empower yourself with the latest bulletin. Stay connected and stay informed! 📲💡",
                         sound: "default",
                         date: String(new Date()),
                         type : "bulletins"
@@ -121,6 +121,11 @@ exports.deleteBulletin = async (req, res) => {
 exports.getAllBulletinByGroupDate = async (req, res) => {
     try {
         let bulletin = await bulletinModel.aggregate([
+            {
+                $sort :{
+                    date : -1
+                }
+            },
             {
                 $group: {
                     _id: {
