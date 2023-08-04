@@ -37,7 +37,7 @@ exports.createNotification = async (req, res) => {
         const updateData = {
             title: title,
             content: content,
-            date: date,
+            ...(date && { date: date }),
             ...(link && { link: link })
         };
 
@@ -45,27 +45,27 @@ exports.createNotification = async (req, res) => {
         successResponse(201, "Notification saved successfully", newNotification, res);
 
         // Send push notification to all approved doctors
-        const doctors = await doctorModel.find({ isApproved: "APPROVED", fcmToken : {
-            $ne: ''
-        } }).lean();
+        // const doctors = await doctorModel.find({ isApproved: "APPROVED", fcmToken : {
+        //     $ne: ''
+        // } }).lean();
 
     
-        if (doctors.length > 0) {
-            for (let ele of doctors) {
-                    if(ele?.fcmToken){
-                        const message = {
-                            title: title,
-                            body: content,
-                            sound: "default",
-                            date: String(new Date()),
-                            ...(link && { click_action: link }),
-                            type : "customMessage"
-                        };
+        // if (doctors.length > 0) {
+        //     for (let ele of doctors) {
+        //             if(ele?.fcmToken){
+        //                 const message = {
+        //                     title: title,
+        //                     body: content,
+        //                     sound: "default",
+        //                     date: String(new Date()),
+        //                     ...(link && { click_action: link }),
+        //                     type : "customMessage"
+        //                 };
 
-                        sendCloudNotification(ele.fcmToken, message);
-                    }
-            }
-        }
+        //                 sendCloudNotification(ele.fcmToken, message);
+        //             }
+        //     }
+        // }
     
         
     } catch (error) {

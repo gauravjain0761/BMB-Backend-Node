@@ -15,8 +15,7 @@ const pushnotifySchema = new mongoose.Schema({
         required: false
     },
     date: {
-        type: Date,
-        required: true
+        type: Date
     },
     isActive: {
         type: Boolean,
