@@ -20,6 +20,8 @@ router.post("/admin/login", adminController.adminlogin);
 //============================= Doctor Account ==========================//
 router.get("/admin/getdoctors",verifyWebToken, doctorsController.getAllDoctors);
 router.put("/admin/approvedoctor", verifyWebToken, doctorsController.approvedoctor);
+// doctor account creation
+router.post("/admin/doctor/create", verifyWebToken, doctorsController.createDoctorAccount);
 router.get("/admin/getdoctor/:id", verifyWebToken, doctorsController.getDoctorById);
 router.delete("/admin/remove_doctor/:id", verifyWebToken, doctorsController.removedocotraccount);
 

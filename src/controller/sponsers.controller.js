@@ -30,7 +30,7 @@ exports.getSponsers = async (req, res) => {
         let filter= {};
         if(req.type){filter.isActive = true}
         let total = await sponsersModel.countDocuments(filter);
-        await sponsersModel.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).then((docs) => {
+        await sponsersModel.find(filter).sort({ created_at: -1 }).skip(skip).limit(limit).then((docs) => {
             res.status(200).json({
                 message: "Sponsers has retrieved successfully.",
                 status:true,

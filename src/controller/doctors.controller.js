@@ -68,6 +68,46 @@ exports.register = async (req, res) => {
   }
 }
 
+// //============================= create Doctor Account==========================//
+
+exports.createDoctorAccount = async (req, res) => {
+  try {
+
+    const { first_name, middle_name, last_name,  contact_number, email } = req.body;
+
+    let existedRegistration = await doctorsModel.findOne({ contact_number });
+
+    if (existedRegistration) {
+      return errorResponse(422, "Contact number already exists", res);
+    }
+
+    const emailWithDoctorExits = await doctorsModel.findOne({ email });
+    if (emailWithDoctorExits) {
+      return errorResponse(422, "Email already exists", res);
+    }
+
+    const lastDoctorId = await doctorsModel.findOne({}).sort({ _id: -1 }).limit(1).select("docId");
+
+    let object = {
+      ...req.body,
+      title: middle_name ? `Dr. ${first_name} ${middle_name} ${last_name}` : `Dr. ${first_name} ${last_name}`,
+      isApproved: "APPROVED",
+      account_type: "DOCTOR",
+      docId  : lastDoctorId != null > 0 ? `BMBDR${generateId(lastDoctorId['_doc']?.docId)}` : 'BMBDR0001',
+      password: bcrypt.hashSync(`BMB2023`, saltRounds)
+    }
+
+    await new doctorsModel(object).save();
+
+    return successResponse(201, "Doctor has been registered successfully.", object, res);
+
+  } catch (err) {
+    console.log("error---->", err);
+    errorResponse(500, err.message, res)
+  }
+
+}
+
 //============================= Doctor Login ==========================//
 exports.doctorlogin = async (req, res) => {
   try {
@@ -364,6 +404,12 @@ exports.approvedoctor = async (req, res) => {
         updatedData.isApproved = body.isApproved
       }
       await doctorsModel.findByIdAndUpdate({ _id: body.doctorId }, { $set: updatedData }).then(docs => { successResponse(200, "Status updated successfully", {}, res) })
+
+      const doctor = await doctorsModel.findOne({ _id: body?.doctorId }).select("_id email first_name last_name");
+
+      // send mail to doctor
+      emailNotify(doctor,"APPROVE_DOCTOR")
+
     } else {
       errorResponse(401, "Authentication failed", res);
     }

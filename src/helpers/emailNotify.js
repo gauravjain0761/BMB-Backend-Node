@@ -24,6 +24,12 @@ exports.emailNotify = async (data, type) => {
                 // payload.text = "";
                 payload.html = `<p><strong>Hello ${data.first_name}, </strong></p><p>Greetings of the day Hope you are doing well.</p><p>Here is the one-time password for your BMB account: ${data.otp}.</p><p><br></p><p>For privacy concerns, please do not share it with any other individuals.</p><p><br></p><p>Thanks &amp; Regards,</p><p>BMB</p>`;
                 break;
+            case "APPROVE_DOCTOR":
+                payload.to = `${data.email}`;
+                payload.subject = "Account Approved ✔";
+                // payload.text = "";
+                payload.html = `<p><strong>Hello ${data?.first_name}, </strong></p><p>Greetings of the day Hope you are doing well.</p><p>Your account has been approved by BMB.</p><p><br></p><p>Thanks &amp; Regards,</p><p>BMB</p>`;
+                break;
 
             default:
                 break;
