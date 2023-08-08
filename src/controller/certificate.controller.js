@@ -34,9 +34,59 @@ exports.addCertificate = async (req, res) => {
 
 exports.getall = async (req, res) => {
     try {
-        await certifcateModel.find({ isActive: true }).sort({ _id: -1 })
-            .populate({ path: "docId", select: ["title"] })
-            .then((docs) => { successResponse(200, "Certificate retrieved successfully.", docs, res) }).catch(err => errorResponse(422, err.message, res))
+        // await certifcateModel.find({ isActive: true }).sort({ _id: -1 })
+        //     .populate({ path: "docId", select: ["title"] })
+        //     .then((docs) => { successResponse(200, "Certificate retrieved successfully.", docs, res) }).catch(err => errorResponse(422, err.message, res))
+
+        const result = await certifcateModel.aggregate([
+            {
+                $match: { isActive: true }
+            },
+            {
+                $lookup: {
+                    from: "certificate_files",
+                    let : { certficateId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: { 
+                                $expr: { $eq: ["$certId", "$$certficateId"] }
+                             }
+                        }
+                    ],
+                    as: "certificate_files"
+                }
+            },
+            {
+                $lookup: {
+                    from: "doctors",
+                    localField: "docId",
+                    foreignField: "_id",
+                    as: "docId"
+                }
+            },
+            {
+                $unwind: "$docId"
+            },
+            {
+                $sort: { created_at: -1 }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    docId: {
+                        _id: 1,
+                        title: 1    
+                    },
+                    certificate_files: 1,
+                    isActive: 1,
+                    created_at: 1,
+                    updated_at: 1
+                }
+            }
+        ])
+
+      return  successResponse(200, "Certificate retrieved successfully.", result, res)
+                            
     }
     catch (err) { console.log('error', err) }
 }

@@ -89,6 +89,9 @@ const doctorschema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    life_time_membership_number: {
+        type: String,
+    },
     web_token: {type: String},
     app_token: {type: String},
 }, {

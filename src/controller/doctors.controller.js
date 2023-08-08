@@ -361,6 +361,7 @@ exports.updatedoctor = async (req, res) => {
     updatedData.address = body.address ? body.address : "";
     updatedData.home_address = body.home_address ? body.home_address : "";
     updatedData.blood_group = body.blood_group ? body.blood_group : "";
+    updatedData.life_time_membership_number = body?.life_time_membership_number ? body?.life_time_membership_number : "";
     if (body.image && user.account_type != "ADMIN" && user.body.image != user?.image) {
       existedImageremove(user.image);
       updatedData.image = body.image ? body.image : user?.image;
