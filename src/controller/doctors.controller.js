@@ -225,6 +225,7 @@ exports.reset_password = async (req, res) => {
         errorResponse(422, "Account not registered.", res)
       } else {
         obj.password = bcrypt.hashSync(password, saltRounds);
+        obj.is_first_time_login = false;
         await doctorsModel.findByIdAndUpdate({ _id: docs['_doc']._id }, { $set: obj }).then((result) => {
           successResponse(200, "Password updated successfully.", {}, res)
         }).catch((err) => { errorResponse(422, err.message, res) })
