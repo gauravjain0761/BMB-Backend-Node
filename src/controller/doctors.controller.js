@@ -128,7 +128,7 @@ exports.doctorlogin = async (req, res) => {
             // Update FCM Token
             if (fcmToken) {
               console.log('fcmToken--5555555->', fcmToken);
-              doctorsModel.findOneAndUpdate({ _id: docs['_doc']?._id }, { fcmToken: fcmToken }, { upsert: true, new: true }).then((result) => {
+              doctorsModel.findOneAndUpdate({ _id: docs['_doc']?._id }, { fcmToken: fcmToken, is_first_time_login : false }, { upsert: true, new: true }).then((result) => {
                 console.log('result--->', result);
               }).catch((err) => {
                 console.log('err--->', err);
