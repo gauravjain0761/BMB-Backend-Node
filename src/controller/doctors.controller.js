@@ -73,7 +73,7 @@ exports.register = async (req, res) => {
 exports.createDoctorAccount = async (req, res) => {
   try {
 
-    const { first_name, middle_name, last_name,  contact_number, email } = req.body;
+    const { first_name, middle_name, last_name, contact_number, email } = req.body;
 
     let existedRegistration = await doctorsModel.findOne({ contact_number });
 
@@ -93,7 +93,7 @@ exports.createDoctorAccount = async (req, res) => {
       title: middle_name ? `Dr. ${first_name} ${middle_name} ${last_name}` : `Dr. ${first_name} ${last_name}`,
       isApproved: "APPROVED",
       account_type: "DOCTOR",
-      docId  : lastDoctorId != null > 0 ? `BMBDR${generateId(lastDoctorId['_doc']?.docId)}` : 'BMBDR0001',
+      docId: lastDoctorId != null > 0 ? `BMBDR${generateId(lastDoctorId['_doc']?.docId)}` : 'BMBDR0001',
       password: bcrypt.hashSync(`BMB2023`, saltRounds)
     }
 
@@ -303,7 +303,7 @@ exports.getDoctorById = async (req, res) => {
           let: { doc: "$_id" },
           pipeline: [
             { $match: { $expr: { $eq: ["$docId", "$$doc"] } } },
-            { $project: { url: 1 } }
+            { $project: { url: 1, fileType: 1 } }
           ],
           as: "certificates"
         }
@@ -409,7 +409,7 @@ exports.approvedoctor = async (req, res) => {
       const doctor = await doctorsModel.findOne({ _id: body?.doctorId }).select("_id email first_name last_name");
 
       // send mail to doctor
-      emailNotify(doctor,"APPROVE_DOCTOR")
+      emailNotify(doctor, "APPROVE_DOCTOR")
 
     } else {
       errorResponse(401, "Authentication failed", res);

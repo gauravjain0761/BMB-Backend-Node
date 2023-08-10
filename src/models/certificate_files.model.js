@@ -5,6 +5,7 @@ const doctorsModel = require("./doctors.model");
 
 const Schema = new mongoose.Schema({
     url: { type: String, required: true },
+    fileType: { type: String },
     certId: { type: ObjectId, required: true, ref: certificate },
     docId: { type: ObjectId, required: true, ref: doctorsModel },
 }, {

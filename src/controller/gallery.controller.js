@@ -65,6 +65,11 @@ exports.getAllGallery = async (req, res) => {
                     ],
                     as: "files"
                 }
+            },
+            {
+                $sort :{
+                    created_at : -1
+                }
             }
         ]).then((docs) => {
             successResponse(200, "successfull", docs, res)

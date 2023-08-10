@@ -17,6 +17,13 @@ exports.addCertificate = async (req, res) => {
                         for (let file of files) {
                             if (file != "") {
                                 let obj = { url: file.url, certId: doc._id, docId: doc.docId }
+                                // check file type 
+                                let fileExt = file?.url?.split('.').pop();
+                                if (fileExt == "pdf") {
+                                    obj.fileType = "PDF"
+                                } else {
+                                    obj.fileType = "IMAGE"
+                                }
                                 arr.push(obj)
                             }
                         }
@@ -102,7 +109,14 @@ exports.editCertificate = async (req, res) => {
                     let arr = []
                     for (let file of files) {
                         if (file != "" && !file._id) {
-                            let obj = { url: file.url, certId: docs._id, docId: docs.docId }
+                            let obj = { url: file.url, certId: docs._id, docId: docs.docId };
+                            // check file type
+                            let fileExt = file?.url?.split('.').pop();
+                            if (fileExt == "pdf") {
+                                obj.fileType = "PDF"
+                            } else {
+                                obj.fileType = "IMAGE"
+                            }
                             arr.push(obj)
                         }
                     }
