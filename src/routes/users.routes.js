@@ -30,6 +30,7 @@ router.post("/doctor/reset_password", doctorsController.reset_password);
 router.post("/device_token", verifyWebToken, doctorsController.device_token);
 router.post("/doctor/member_ship/:id", registrationController.membership)
 router.get("/doctor/get",verifyWebToken,doctorsController.getAllDoctorsDetails);
+router.post("/doctor/check_first_time_login", doctorsController.check_first_time_login);
 
 
 router.get("/dashboard/", dashboardController.getDashboardData)

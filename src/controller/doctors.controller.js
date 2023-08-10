@@ -516,3 +516,27 @@ exports.device_token = async (req, res) => {
   }
 }
 
+//=================== check_first_time_login =================
+exports.check_first_time_login = async (req, res) => {
+  try {
+
+    const { email } = req.body;
+
+    if (!email) {
+      return errorResponse(422, "Please provide email", res)
+    }
+
+    const doctor = await doctorsModel.findOne({ email }).select("_id is_first_time_login");
+
+    if (!doctor) {
+      return errorResponse(404, "Doctor not found", res)
+    }
+
+    return successResponse(200, "First time login", { is_first_time_login:  doctor?.is_first_time_login }, res)
+
+  } catch (err) {
+    errorResponse(500, err.message, res)
+  }
+}
+
+

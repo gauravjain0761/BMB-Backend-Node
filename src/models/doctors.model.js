@@ -92,6 +92,10 @@ const doctorschema = new mongoose.Schema({
     life_time_membership_number: {
         type: String,
     },
+    is_first_time_login: {
+        type: Boolean,
+        default: false
+    },
     web_token: {type: String},
     app_token: {type: String},
 }, {
