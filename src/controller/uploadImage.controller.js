@@ -50,6 +50,12 @@ exports.UploadFile = async (req, res) => {
             file["type"] = type;
             break;
             case "CERTIFICATE":  
+            await sharp(file.buffer)
+              // .resize(446, 446)
+              .toBuffer()
+              .then((data) => {
+                file["buffer"] = data;
+              });
             file["fileName"] = fileName;
             file["type"] = type;
           default:
