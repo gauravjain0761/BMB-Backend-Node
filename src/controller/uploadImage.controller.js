@@ -58,6 +58,12 @@ exports.UploadFile = async (req, res) => {
               });
             file["fileName"] = fileName;
             file["type"] = type;
+            break;
+          case "BULLETIN":
+            file["buffer"] = file.buffer;
+            file["fileName"] = fileName;
+            file["type"] = type;
+            break;
           default:
             break;
         }

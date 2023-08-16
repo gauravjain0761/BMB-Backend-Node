@@ -12,17 +12,22 @@ exports.Imageupload = async (files, res) => {
   for (let file of files) {
   s3bucket.createBucket(function () {
     var params = {
-      Bucket: `bmb.${file.type}`,
-      Key: file.fileName,
-      Body: file.buffer,
+      Bucket: `bmb.${file?.type}`,
+      Key: file?.fileName,
+      Body: file?.buffer,
       ACL: "public-read",
       ContentType: `${file.mimetype}`,
     };
-    
+
     s3bucket.upload(params, async function (err, data) {
       if (err) {
         errorResponse(500, "somthing went wrong", res)
       } else {
+
+        if (!data?.Location?.includes("https") || !data?.Location?.includes("http")) {
+          data.Location = `https://${data.Location}`;
+        } 
+
         ResponseData.push(data);
         if (ResponseData.length === files.length) {
           console.log('ResponseData', ResponseData);
