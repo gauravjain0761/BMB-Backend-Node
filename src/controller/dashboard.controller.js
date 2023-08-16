@@ -7,8 +7,8 @@ const announcementModel = require("../models/announcements.model");
 //============================= Dashboard data ==========================//
 exports.getDashboardData = async (req, res) => {
     try {
-        const promise1 = await announcementModel.find({ isActive: true }).sort({ _id: -1 });
-        const promise2 = await sponsersModel.find({ isActive: true }).sort({ _id: -1 });
+        const promise1 = await announcementModel.find({ isActive: true }).sort({ created_at: -1 });
+        const promise2 = await sponsersModel.find({ isActive: true }).sort({ created_at: -1 });
         const promises = [promise1, promise2];
 
         Promise.allSettled(promises).

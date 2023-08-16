@@ -363,6 +363,19 @@ exports.updatedoctor = async (req, res) => {
     updatedData.home_address = body.home_address ? body.home_address : "";
     updatedData.blood_group = body.blood_group ? body.blood_group : "";
     updatedData.life_time_membership_number = body?.life_time_membership_number ? body?.life_time_membership_number : "";
+    
+    if(body?.degree_certificate) {
+      updatedData.degree_certificate = body?.degree_certificate;
+    }
+
+    if(body?.mmc_certificate) {
+      updatedData.mmc_certificate = body?.mmc_certificate;
+    }
+
+    if(body?.image && user?.account_type == "ADMIN") {
+      updatedData.image = body?.image ? body?.image : user?.image;
+    }
+
     if (body.image && user.account_type != "ADMIN" && user.body.image != user?.image) {
       existedImageremove(user.image);
       updatedData.image = body.image ? body.image : user?.image;
