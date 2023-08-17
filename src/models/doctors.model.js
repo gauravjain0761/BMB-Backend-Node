@@ -28,11 +28,9 @@ const doctorschema = new mongoose.Schema({
     },
     qualification: {
         type: String,
-        required: true 
     },
     speciality: {
         type: String,
-        required: true 
     },
     reg_number: {
         type: String,

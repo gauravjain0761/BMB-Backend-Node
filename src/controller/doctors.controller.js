@@ -94,7 +94,8 @@ exports.createDoctorAccount = async (req, res) => {
       isApproved: "APPROVED",
       account_type: "DOCTOR",
       docId: lastDoctorId != null > 0 ? `BMBDR${generateId(lastDoctorId['_doc']?.docId)}` : 'BMBDR0001',
-      password: bcrypt.hashSync(`BMB2023`, saltRounds)
+      password: bcrypt.hashSync(`BMB2023`, saltRounds),
+      is_first_time_login : true
     }
 
     await new doctorsModel(object).save();
@@ -441,9 +442,16 @@ exports.verifyOtpMatch = async (req, res) => { }
 //============================= Import Excel ==========================//
 exports.importexcel = async (req, res) => {
   console.log('importexcel api called..');
-  let workbook = XLSX.readFile("./BMB_user_list.xlsx");
+  let workbook = XLSX.readFile("./BMB_user_list1.xlsx");
   let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  for (let i = 2; i <= 540; i++) {
+
+  for (let i = 2; i <= 436; i++) {
+
+    // if email empty then skip
+    if (!worksheet[`H${i}`]?.v) {
+      continue;
+    }
+
     let counts = await doctorsModel.find({}).sort({ created_at: -1 });
     const object = {};
     let name = worksheet[`B${i}`].v.split(" ");
@@ -451,29 +459,40 @@ exports.importexcel = async (req, res) => {
     object.first_name = name[0];
     object.middle_name = name.length > 2 ? name[1] : "";
     object.last_name = name.length > 2 ? name[2] : name[1];
-    object.qualification = worksheet[`C${i}`].v;
-    object.email = !worksheet[`H${i}`] ? `xyz${i}@gmail.com` : worksheet[`H${i}`].v.toLowerCase();
-    object.contact_number = !worksheet[`G${i}`] ? "" : worksheet[`G${i}`].v;
+    object.qualification = worksheet[`C${i}`]?.v ? worksheet[`C${i}`].v : "";
+    object.email = !worksheet[`H${i}`] ? `xyz${i}@gmail.com` : worksheet[`H${i}`].v.toLowerCase().trim();
+    object.contact_number = !worksheet[`G${i}`] ? "" : String(worksheet[`G${i}`].v)?.trim();
     object.password = bcrypt.hashSync(`BMB2023`, saltRounds);
     object.home_address = !worksheet[`I${i}`] ? "" : worksheet[`I${i}`].v;
     object.clinic_address = !worksheet[`J${i}`] ? "" : worksheet[`J${i}`].v;
     // object.addOfComunication = worksheet[`J${i}`] != "" ? worksheet[`J${i}`].v : "";
     object.blood_group = "O+";
     object.dob = "01/01/2000";
-    object.reg_number = 000000;
+    object.reg_number = '000000';
     object.isApproved = "APPROVED";
-    object.speciality = worksheet[`D${i}`] != "" ? worksheet[`D${i}`].v : "";
+    object.speciality = worksheet[`D${i}`]?.v ? worksheet[`D${i}`]?.v : "";
     object.docId = counts.length > 0 ? `BMBDR${generateId(counts[0].docId)}` : 'BMBDR0001';
     object.account_type = "USER";
     object.state = worksheet[`K${i}`] != "" ? worksheet[`K${i}`].v : "";
-    let dataExist = await doctorsModel.countDocuments({ $or: [{ email: object.email }, { contact_number: object.contact_number }] })
+    object.life_time_membership_number = worksheet[`E${i}`]?.v ? String(worksheet[`E${i}`].v)?.trim() : "";
+    object.is_first_time_login = true;
+
+    console.log('object--->', object);
+    let dataExist = await doctorsModel.countDocuments({ $or: [{ email: object.email }, { contact_number: object.contact_number }] });
+
+    console.log('dataExist--->', dataExist);
+
     if (dataExist === 0) {
       await doctorsModel(object).save().then((docs) => { console.log('docs', docs.title, docs.docId) })
         .catch((err) => console.log('error', err))
     } else {
+      // update life_time_membership_number
+      await doctorsModel.findOneAndUpdate({ $or: [{ email: object.email }, { contact_number: object.contact_number }] }, { $set: { life_time_membership_number: object.life_time_membership_number } })
       console.log('dulicate data--->', object.title, object.email, object.contact_number);
     }
   }
+
+
   successResponse(200, "Doctors imported successfully", {}, res);
 }
 
