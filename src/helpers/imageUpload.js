@@ -24,9 +24,7 @@ exports.Imageupload = async (files, res) => {
         errorResponse(500, "somthing went wrong", res)
       } else {
 
-        if (data?.Location?.includes("https") || data?.Location?.includes("http")) {
-          data.Location = data.Location;
-        }else {
+        if (!data.Location.startsWith("https://") && !data.Location.startsWith("http://")) {
           data.Location = `https://${data?.Location}`;
         }
 
